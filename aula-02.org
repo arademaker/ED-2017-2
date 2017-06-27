@@ -1,0 +1,33 @@
+#+Title: Aula 02
+
+- Revisão?
+
+- Análise de pior caso
+
+#+BEGIN_SRC lisp
+  (defun range (n k)
+    (loop for x from 0 to n
+	  collect (random k)))
+
+  (defun length-while-less (lst k)
+    (let ((sum 0))
+      (dolist (x lst sum)
+	(if (< x k)
+	    (return sum)
+	    (progn (print 1) (setf sum (+ sum x)))))))
+
+  (defun length-while-less-2 (n k1 k2)
+    (let ((sum 0)
+	  (lst (range n k1)))
+      (dolist (x lst sum)
+	(if (< x k)
+	    (return sum)
+	    (progn (print 1) (setf sum (+ sum x)))))))
+#+END_SRC
+
+
+- complexidade de bibliotecas e funções dependentes.
+
+* Tarefas
+
+
