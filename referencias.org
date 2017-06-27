@@ -1,0 +1,37 @@
+#+Title: Referências e Links
+
+* Livros
+
+- S. Dasgupta, C. H. Papadimitriou, and U. V. Vazirani,
+  Algorithms. 2006. [[http://algorithmics.lsi.upc.edu/docs/Dasgupta-Papadimitriou-Vazirani.pdf][url]]
+
+- J. Kleinberg and E. Tardos, Algorithm Design. 2005. [[https://www.pearsonhighered.com/program/Kleinberg-Algorithm-Design/PGM319216.html][url]]
+
+- Python Algorithms
+
+* Links
+
+Lista:
+
+https://groups.google.com/forum/#!forum/ed-2017
+
+Fontes adicionais:
+
+- https://www.coursera.org/learn/algorithm-design-analysis/
+- https://www.coursera.org/learn/algorithm-design-analysis-2/
+- https://www.youtube.com/playlist?list=PLUl4u3cNGP61Oq3tWYp6V_F-5jb5L2iHb
+- [[http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-046j-introduction-to-algorithms-sma-5503-fall-2005/][MIT 2005]]
+- [[http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-006-introduction-to-algorithms-fall-2011/][MIT 2011]]
+- [[https://www.youtube.com/playlist?list=PLUl4u3cNGP63gFHB6xb-kVBiQHYe_4hSi][MIT 2010]]
+
+Lisp:
+
+- http://www.gigamonkeys.com/book/
+- https://mitpress.mit.edu/sicp/
+- https://github.com/google/lisp-koans
+
+Outros:
+
+- http://grigory.us/blog/the-simple-economics-of-algorithms-for-big-data/
+- http://jessesnet.com/development-notes/2014/big-o-algorithm-analysis/
+- http://jasonpark.me/AlgorithmVisualizer/
