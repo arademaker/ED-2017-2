@@ -117,6 +117,7 @@ uma função para isso?
 Por outro lado, inserir um elemento no início da lista custa O(1), bem
 como remover o primeiro elemento da lista custa O(1). Por que?
 
+https://www.youtube.com/watch?v=_jQhALI4ujg
 
 * Corretude dos algoritmos
 
@@ -124,7 +125,9 @@ Podemos testar incessantemente um algoritmo, mas quando um teste
 garante a corretude? podemos provar a corretude por outros meios?
 
 Em geral podemos ser tão precisos e formais quanto quisermos. Exemplo
-código [[http://isabelle.in.tum.de][Isabelle]] no arquivo file:MyList.thy.
+código [[http://isabelle.in.tum.de][Isabelle]] no arquivo file:MyList.thy. Neste código provamos
+algumas propriedades sobre as operações =rev= (reverse) e =append=
+sobre listas encadeadas, quais?
 
 * Tarefas
 
