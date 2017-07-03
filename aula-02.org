@@ -1,8 +1,34 @@
 #+Title: Aula 02
 
-- Revisão?
+Rápida revisão do que vimos na primeira aula.
 
-- Análise de pior caso
+Diferença entre pseudocódigo e código escrito. É importantíssimo
+implementar os pseudocódigos vistos durante o curso em uma linguagem
+de programação real, muitos detalhes não são apresentados nos
+pseudo-códigos apresentados no livro.
+
+Contar operações para estimar a complexidade deve ser feita com
+cuidado: multiplicar dois números de poucos algarísmos envolve menos
+operações (de máquina) do que multiplicar dois números de 200
+algarismos. Podemos ver isso nos algoritmos de soma e multiplicação
+que vemos na escola básica.
+
+Nem sempre a complexidade de um algoritmo depende do tamanho =n= da
+entrada. Por vezes, a dependência é de uma estrutura de dados, e fica
+difícil estabelecer a complexidade. Podemos ter, por exemplo, um
+algoritmo de ordenação agindo sobre duas sequências de mesmo tamanho,
+porém uma delas muito mais desordenada do que a outra. Assim, a
+complexidade do algoritmo pode não depender apenas do tamanho da
+entrada mas da 'forma' da entrada. Alguns algorítmos sobre números
+dependem da representação das suas entradas (geralmente de forma
+binária).
+
+Como a complexidade pode variar em função da 'forma' da entrada, o que
+se costuma fazer é uma análise de pior caso ou de caso médio. Neste
+curso, focaremos na análise de pior caso.
+
+No código abaixo, sem considerarmos análise de pior caso, não
+poderiamos efetivamente estimar a complexidade.
 
 #+BEGIN_SRC lisp
   (defun range (n k)
@@ -26,8 +52,83 @@
 #+END_SRC
 
 
-- complexidade de bibliotecas e funções dependentes.
+Complexidade: dependência e bibliotecas. Como estimar a complexidade
+de uma função que depende da outra?
+
+* Stable Matching Problem
+
+Livro Eva Tardos.
+
+Unstable pair: applicant x and hospital y are unstable if
+
+- x prefers y to its assigned hospital
+- y prefers x to one of its assigned students
+
+
+Propose and reject algorithm (gale-shapley 1962)
+
+como verificar se o algoritmo está certo? e se ele para?
+	
+Termination: men propose to women in decreasing order of
+preference. women are never unmatched after being matched (she only
+trades "up"). as men will at most propose to all other women, the
+complexity is $n^2$.
+	
+Correctness: all men and women get matched. if some women is single,
+someone did not propose to her, but if some man is single, this means
+that he has proposed to all women, which is a contradicion.
+ 	
+Stability: suppose A-Z is unstable.  case 1: Z never proposed to A. if
+so, that's because he proposed to someone before, which is preferrable
+to A, by construction. contradiction. case 2: Z proposed to A. then A
+must prefer him if she ended up with him, as she only "trades up", by
+construction. contradiction.
+	
+- como implementar GS de maneira eficiente? estruturas de dados? Mas
+  muitas vezes há um trade-off entre memória e eficiência.
+	
+- como encontrar todos os equilíbrios estáveis (não só o devolvido
+  pelo GS)?
+
+
+* Diferença entre vetor e lista encadeada
+
+Vetor tem alocação contínua de memória, onde cada posição tem tamanho
+constante. Logo, o acesso a qualquer item em uma posição arbitrária
+tem custo constante =O(1)=, mas inserção de elemento na posição =k= é
+=O(n)=, no pior caso (inserção de novo elemento na frente de todos os
+demais, primeira posição). Isto é, precisamos reposicionar na memória
+todos os elementos de =k= em diante. o mesmo acontece com a remoção de
+um elemente, que é operação =O(n)=.
+
+Listas encadeadas não tem seus elementos alocados em uma região
+contínua. Cada célula além do valor contém o endereço para o próximo
+elemento (célula) da lista.
+
+#+BEGIN_SRC lisp
+(cons 1 (cons 2 (cons 3 nil)))
+(list 1 2 3)
+#+END_SRC
+
+Na lista encadeada, acesso a um elemento arbitrário é =O(n)=, pois é
+preciso seguir a cadeia até chegar ao elemento desejado. Como escrever
+uma função para isso? 
+
+Por outro lado, inserir um elemento no início da lista custa O(1), bem
+como remover o primeiro elemento da lista custa O(1). Por que?
+
+
+* Corretude dos algoritmos
+
+Podemos testar incessantemente um algoritmo, mas quando um teste
+garante a corretude? podemos provar a corretude por outros meios?
+
+Em geral podemos ser tão precisos e formais quanto quisermos. Exemplo
+código [[http://isabelle.in.tum.de][Isabelle]] no arquivo file:MyList.thy.
 
 * Tarefas
 
+- implementar função que dado índice do elemento desejado da lista
+  encadeada, retorna esse elemento
 
+  
