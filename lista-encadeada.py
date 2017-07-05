@@ -18,7 +18,7 @@ class cons:
         if ix == 0:
             return linked_list.car
         else:
-            return self.search(ix-1, linked_list=linked_list.cdr)
+            return self.recursive_search(ix-1, linked_list=linked_list.cdr)
     
     def search(self, ix):
 	"loop solution"
