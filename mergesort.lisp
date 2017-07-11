@@ -16,10 +16,8 @@ longer."
 (defun merge-lists(list1 list2)
   "merge lists according to size of first argument."
   (let ((car1 (first list1))
-	(car2 (first list2))
-	(cdr1 (rest list1))
-	(cdr2 (rest list2)))
+	(car2 (first list2)))
     (cond ((endp list1) list2)
 	  ((endp list2) list1)
-	  ((<= car1 car2) (cons car1 (merge-lists cdr1 list2)))
-	  (t (cons car2 (merge-lists list1 cdr2))))))
+	  ((<= car1 car2) (cons car1 (merge-lists (rest list1) list2)))
+	  (t (cons car2 (merge-lists list1 (rest list2)))))))
