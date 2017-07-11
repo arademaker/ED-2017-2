@@ -1,0 +1,22 @@
+#+Title: Aula 05
+
+Cap 2 Alg (Papadimitriou)
+
+1. Revisão Multiplicação
+2. Master Theorem
+   1. Ver Python Algorithms (sec. "Doing it by Hand")
+3. merge sort
+4. merge sort interactive
+
+5. Median vs Mean (quicksort from coursera)
+6. sorting -> n log n -> take n/2 element
+7. more general problem. take the k-esimo menor elemento
+
+8. Counting Inverse
+9. Programming Pearls
+
+** Exercícios
+
+- 2.2, 2.20 ALG
+- Programming Assigment
+
