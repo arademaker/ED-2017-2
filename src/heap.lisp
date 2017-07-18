@@ -1,3 +1,6 @@
+;; authors: bruno cuconato (@odanoburu)
+;; placed in the public domain.
+
 ;; heap indexing starts from 0.
 
 ;;;;;;;;;;;;;;
