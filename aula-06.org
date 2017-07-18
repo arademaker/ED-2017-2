@@ -150,7 +150,7 @@ Lisp.
 	   ...)
 
   "_ >nmod (_ >nmod _)"
-  (find-if (qi '(nmod _ (nmod _ _)))
+  (find-if (qi '(nmod (nmod _ _) _))
 	   ...)
 #+END_SRC
 
