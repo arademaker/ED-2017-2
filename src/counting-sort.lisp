@@ -56,5 +56,9 @@ goes to the next element."
 	(setf (svref sorted-vector (1- (get-count count-vector current min))) current)
 	(decf (svref count-vector (- current min)))
 	(sort-count count-vector vector sorted-vector min (1- ix)))))
-      
-	 
+
+;; tests
+
+(counting-sort #(0 0 0 0 0) 0 0)
+(counting-sort #(1 0 5 0 -1 10 -2 5 0) -2 10)
+(counting-sort #(-2 10 -2 10 -2 10 10 -2 -2) -2 10)

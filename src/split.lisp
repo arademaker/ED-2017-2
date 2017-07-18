@@ -10,8 +10,18 @@
 ;; equal to the pivot, and the third is made up of elements bigger
 ;; than the pivot.
 
+(defun split-vector (vector pivot)
+  "splits vector in three, the first is composed of elements less than
+the pivot, the second is composed by elements equal to the pivot, and
+the third is composed of elements greater than the pivot."
+  (multiple-value-bind (split-vector start end) (split vector pivot)
+    (values (subseq split-vector 0 start)
+	    (subseq split-vector start end)
+	    (subseq split-vector end))))
+
 (defun split (vector pivot &optional (curr 0) (endix 0) (pivots 0) (passed 0))
-  "splits vector in three, according to pivot."
+  "splits vector in three, according to pivot. returns vector and
+indices of start and end of pivot elements."
   (let ((lastix (1- (array-dimension vector 0))))
     (when (> passed lastix)
       (return-from split (values
@@ -47,4 +57,8 @@
 
 
 ;; tests
-
+(split-vector #(1 3 4 3 0 -1 3 8 99) 3)
+(split-vector #(1 3 4 3 0 -1 3 8 99) 5)
+(split-vector #(1 3 4 3 0 -1 3 8 99) -10) ; weird result, but ok as
+					  ; -10 is not on list
+(split-vector #(1 3 4 3 0 -1 3 8 99) -1)

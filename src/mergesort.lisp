@@ -24,3 +24,9 @@
 	  ((endp list2) list1)
 	  ((<= car1 car2) (cons car1 (merge-lists (rest list1) list2)))
 	  (t (cons car2 (merge-lists list1 (rest list2)))))))
+
+;; tests
+
+(mergesort (list 83 934 3 -1 -99 3))
+(mergesort nil)
+(mergesort (list 5 5 5 5 5))
