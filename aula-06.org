@@ -35,9 +35,11 @@ sistemas que implementam buscas em [[https://en.wikipedia.org/wiki/Treebank][tre
 Uma versão muito preliminar de busca por sentenças foi implementada em
 [[https://github.com/own-pt/cl-conllu/blob/master/query.lisp][query.lisp]]. Infelizmente esta função não permite buscas com 
 
-  Retorne todas as sentenças que tenham algum token com postag VERBO
-  cujo HEAD seja outro token com lemma /correr/ e a relação entre eles
-  de /ccomp/.
+#+BEGIN_QUOTE
+Retorne todas as sentenças que tenham algum token com postag VERBO
+cujo HEAD seja outro token com lemma /correr/ e a relação entre eles
+de /ccomp/.
+#+END_QUOTE
 
 Esta consulta seria escrita na linguagem de query do link acima como:
 
