@@ -11,6 +11,62 @@ da avaliação e notas.
 
 * Projeto do Curso
 
+** Introdução
+
+Em geral, nos cursos de estruturas de dados e algorítmos, aprendemos
+que busca de um item em uma lista tem complexidade $O(n)$. Por exemplo
+
+#+BEGIN_SRC lisp
+  (defun query (item list)
+    (if (null list)
+	nil
+	(if (equal (car list) item)
+	    item
+	    (query item (cdr list)))))
+#+END_SRC
+
+Esta função é implementada em Lisp com nome =find=. Note que no código
+acima, estamos assumindo que o item que desejamos buscar, passado como
+primeiro argumento, ocorre também na lista (segundo argumento) e a
+função (predicado) [[https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node74.html][equal]] conseguirá comparar os dois valores. Também
+estamos assumindo que a lista é uma lista de elementos do mesmo tipo
+do elemento sendo buscado.
+
+Discutimos em sala como a função =find= e =find-if= de lisp são mais
+genéricas e por isso podem operar sobre listas de outros tipos de
+objetos de forma mais flexível ao receberem como parâmetro as funções
+=key= e =test=.
+
+Em uma aplicação que opere uma uma lista muito grande de elementos que
+mude pouco, podemos melhorar o desempenho ordenando a lista inicial e
+implementando uma [[https://rosettacode.org/wiki/Binary_search#Common_Lisp][busca mais eficiente (binária)]] sobre a lista
+ordenada. Teríamos então:
+
+#+BEGIN_SRC lisp
+  (defparameter ordered-list (sort alist ...))
+  (binary-search ... ordered-list)
+#+END_SRC
+
+Faz sentido? O problema é que a forma como a lista foi ordenada irá
+influenciar a eficiência a busca binária.  Imaginem uma lista de pares
+ordenada pelo primeiro elemento de cada par:
+
+#+BEGIN_SRC lisp :results output :export both
+(print (sort '((10 1) (5 6) (7 8) (10 4) (2 45)) #'< :key #'car))
+#+END_SRC
+
+#+RESULTS:
+: ((2 45) (5 6) (7 8) (10 1) (10 4)) 
+
+Esta lista ordenada só permitirá que nossa busca binária seja
+eficiente se executada sobre os primeiros elementos de cada par. Para
+que a busca binária seja eficiente para a busca sobre qualquer
+elemento dos pares, uma maneira seria mantermos duas versões da lista
+ordenada sobre cada elemento dos pares que desejarmos buscar. Mas
+vamos deixar eficiência para daqui a pouco...
+
+** O projeto
+
 Vamos implementar no topo da biblioteca [[https://github.com/own-pt/cl-conllu][cl-conllu]] uma função eficiente
 para consulta de sentenças. Esta biblioteca foi criada para
 trabalharmos com arquivos [[http://universaldependencies.org/format.html][CoNLL-U]] que contém análises sintáticas de
