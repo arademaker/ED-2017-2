@@ -1,10 +1,13 @@
 #+Title: Aula 06
 
-Cap 3 ALG (Papadimitriou)
+O problema Counting Inverse está apresentado nos slides compartilhados
+com a turma e constitui o objeto do primeiro /programming
+assignment/. Notem que o problema é bem parecido com o merge-sort. Com
+isso terminamos o capítulo 2 do DPV.
 
-1. Counting Inverse
-2. Programming Pearls
-3. Graphs
+Falamos sobre o projeto do curso. A turma irá desenvolver o projeto de
+forma colaborativa e a participação de cada um no projeto será objeto
+da avaliação e notas.
 
 * Projeto do Curso
 

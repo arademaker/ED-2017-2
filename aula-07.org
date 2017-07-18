@@ -1,0 +1,8 @@
+#+Title: Aula 07
+
+Próxima aula. 
+
+1. Programming Pearls
+2. Grafos
+3. Discussões projeto
+
