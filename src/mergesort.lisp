@@ -1,4 +1,7 @@
-;;ideal implementation would be using arrays, right?
+;; authors: bruno cuconato (@odanoburu)
+;; placed in the public domain.
+
+;; ideal implementation would be using arrays.
 
 (defun mergesort(a-list)
   (if (> (length a-list) 1)
