@@ -129,9 +129,5 @@ código [[http://isabelle.in.tum.de][Isabelle]] no arquivo file:MyList.thy. Nest
 algumas propriedades sobre as operações =rev= (reverse) e =append=
 sobre listas encadeadas, quais?
 
-* Tarefas
-
-- implementar função que dado índice do elemento desejado da lista
-  encadeada, retorna esse elemento
 
   

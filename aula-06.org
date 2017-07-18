@@ -1,6 +1,7 @@
 #+Title: Aula 06
 
-Cap 2 Alg (Papadimitriou)
+Cap 3 ALG (Papadimitriou)
 
 1. Counting Inverse
 2. Programming Pearls
+3. Graphs

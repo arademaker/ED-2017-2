@@ -1,6 +1,6 @@
 #+Title: Aula 05
 
-Cap 2 Alg (Papadimitriou)
+Cap 2 Alg (Papadimitriou). Notas colaborativas em http://bit.ly/2u6VGWc
 
 1. Revisão Multiplicação
 2. Master Theorem
@@ -23,7 +23,3 @@ Animation : https://www.toptal.com/developers/sorting-algorithms
       (selection L k)))
 #+END_SRC
 
-** Exercícios
-
-- ALG: 2.2, 2.3, 2.4, 2.15, 2.17, 2.19, 2.20
-- Programming Assigment
