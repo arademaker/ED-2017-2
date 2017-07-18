@@ -5,3 +5,99 @@ Cap 3 ALG (Papadimitriou)
 1. Counting Inverse
 2. Programming Pearls
 3. Graphs
+
+* Projeto do Curso
+
+Vamos implementar no topo da biblioteca [[https://github.com/own-pt/cl-conllu][cl-conllu]] uma função eficiente
+para consulta de sentenças. Esta biblioteca foi criada para
+trabalharmos com arquivos [[http://universaldependencies.org/format.html][CoNLL-U]] que contém análises sintáticas de
+sentenças. As funcionalidades mais básicas desta biblioteca são as
+funções [[https://github.com/own-pt/cl-conllu/blob/master/read-write.lisp#L59-L67][read-conllu]] (lê um arquivo e produz uma lista de objetos da
+classe [[https://github.com/own-pt/cl-conllu/blob/master/data.lisp#L45-L57][sentence]]) e [[https://github.com/own-pt/cl-conllu/blob/master/read-write.lisp#L179-L181][write-conllu]] (recebe uma lista de objetos da classe
+=sentence= e uma string com o nome de um arquivo e grava as sentenças
+no arquivo). Ao longo dos meses, novas funcionalidades foram sendo
+incorporadas na biblioteca.
+
+Nosso projeto então consiste em implementarmos uma função para, dada
+uma lista de sentença, retornar as sentenças que satisfizerem a um
+critério definido pelo usuário através de uma linguagem de
+consulta. Um exemplo deste tipo de funcionalidade pode ser visto nos
+links do issue e diretamete [[http://bosque.mybluemix.net][aqui]] (escolha o treebank 'bosque-UD'). No
+link [[http://bionlp.utu.fi/searchexpressions-new.html][Query Language]] vocês poderam consultar a linguagem de query usada
+neste sistema.
+
+Vejam o [[https://github.com/own-pt/cl-conllu/issues/3][issue 3]] já aberto sobre este assunto com links para outros
+sistemas que implementam buscas em [[https://en.wikipedia.org/wiki/Treebank][treebanks]].
+
+Uma versão muito preliminar de busca por sentenças foi implementada em
+[[https://github.com/own-pt/cl-conllu/blob/master/query.lisp][query.lisp]]. Infelizmente esta função não permite buscas com 
+
+  Retorne todas as sentenças que tenham algum token com postag VERBO
+  cujo HEAD seja outro token com lemma /correr/ e a relação entre eles
+  de /ccomp/.
+
+Esta consulta seria escrita na linguagem de query do link acima como:
+
+#+BEGIN_EXAMPLE
+VERB <ccomp VERB
+#+END_EXAMPLE
+
+Para este projeto, precisaremos pensar em várias questões ligadas ao
+curso de estruturas de dados. Mas vamos tentar decompor o problema. Um
+link interessante para uma discussão sobre a criação de mecanismos de
+busca é [[http://www.ardendertat.com/2011/07/17/how-to-implement-a-search-engine-part-3-ranking-tf-idf/][How to Implement a Search Engine]].
+
+Na aula de hoje, começamos a discutir como seria nossa linguagem de
+query. Obviamente, se formos implementar uma linguagem como a [[http://bionlp.utu.fi/searchexpressions-new.html][Query
+Language]] teriamos o mesmo esforço que o esforço de implementar a
+função abaixo para cálcular o valor de uma expressão matemática
+passada como string de forma /infixada/, isto é, teriamos que escrever
+um [[https://en.wikipedia.org/wiki/Parsing#Computer_languages][parser]] [fn:1].
+
+#+BEGIN_EXAMPLE
+(evaluate "1 + 23 * (5 / 7)")
+#+END_EXAMPLE
+
+Nosso parser seria o responsável por entender a string e transforma-la
+em uma sequência de operações a serem efetivamente implementadas. Se
+usarmos uma notação prefixada, o trabalho é bem mais simples. Usando
+Lisp:
+
+#+BEGIN_SRC lisp
+(eval '(* (+ 1 23) (/ 5 7)))
+#+END_SRC
+
+Então podemos aplicar a mesma idéia para nosso projeto. Ao invés de
+receber algo como:
+
+#+BEGIN_EXAMPLE
+(query "VERB <ccomp VERB" ...)
+#+END_EXAMPLE
+
+Podemos começar tentando implementar uma função =qi= (de
+query-interpreter) que recebe uma [[https://en.wikipedia.org/wiki/S-expression][s-exp]] (logo já em forma pré-fixada)
+e gera uma função que pode ser passada para a função =find-if= de
+Lisp.
+
+#+BEGIN_SRC lisp
+  "VERB <ccomp VERB"
+  (find-if (qi '(ccomp (pos "VERB") (pos "VERB")))
+	   ...)
+
+  "VERB <ccomp L=ir"
+  (find-if (qi '(ccomp (pos "VERB") (lemma "ir")))
+	   ...)
+
+  "_ >nmod (_ >nmod _)"
+  (find-if (qi '(nmod _ (nmod _ _)))
+	   ...)
+#+END_SRC
+
+* Footnotes
+
+[fn:1] Note que um parser pode ser usado para entender linguagem
+natural para produzir análise de sentenças que são armazenadas em
+treebanks e sobre os quais queremos fazer queries. Mas também temos os
+parsers para linguagens formais, como linguagem de programação, é
+neste contexto que estou usando 'parser' nesta frase.
+
