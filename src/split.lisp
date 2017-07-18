@@ -1,7 +1,8 @@
-;;; exercise 2.15 Sanjoy Dasgupta, Christos Papadimitriou, Umesh
-;;; Vazirani --- Algorithms (2006)
 ;; authors: bruno cuconato (@odanoburu)
 ;; placed in the public domain.
+
+;;; exercise 2.15 Sanjoy Dasgupta, Christos Papadimitriou, Umesh
+;;; Vazirani --- Algorithms (2006)
 
 ;; show how to implement a split operation in place. splits a vector
 ;; in three according to a pivot, the first part is made up of

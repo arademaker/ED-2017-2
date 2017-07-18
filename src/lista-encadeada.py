@@ -1,3 +1,8 @@
+"""
+authors: bruno cuconato (@odanoburu)
+placed in the public domain.
+"""
+
 class cons:
     """"""
     def __init__(self, car, cdr=None):
