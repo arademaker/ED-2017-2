@@ -1,10 +1,10 @@
 #+Title: Aula 05
 
-Cap 2 Alg (Papadimitriou)
+Cap 2 Alg (Papadimitriou). Notas colaborativas em http://bit.ly/2u6VGWc
 
 1. Revisão Multiplicação
 2. Master Theorem
-   1. Ver Python Algorithms (sec. "Doing it by Hand")
+   - Ver Python Algorithms (sec. "Doing it by Hand")
 3. merge sort
 4. merge sort interactive
 
@@ -12,11 +12,14 @@ Cap 2 Alg (Papadimitriou)
 6. sorting -> n log n -> take n/2 element
 7. more general problem. take the k-esimo menor elemento
 
-8. Counting Inverse
-9. Programming Pearls
+Animation : https://www.toptal.com/developers/sorting-algorithms
 
-** Exercícios
+#+BEGIN_SRC lisp
+  (defun selection (L k)
+    ...)
 
-- 2.2, 2.20 ALG
-- Programming Assigment
+  (defun median (L)
+    (let ((k (/ (length L) 2)))
+      (selection L k)))
+#+END_SRC
 

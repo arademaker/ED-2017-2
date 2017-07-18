@@ -77,8 +77,4 @@
 #+END_SRC
 
 
-* Tarefas
-
-Para próxima aula: ler seção 0.3 de Dasgupta & al. (big O notation) e
-fazer o exercício 0.1, 0.2, 0.3.
 

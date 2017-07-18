@@ -2,12 +2,12 @@
 
 * Livros
 
-- S. Dasgupta, C. H. Papadimitriou, and U. V. Vazirani,
-  Algorithms. 2006. [[http://algorithmics.lsi.upc.edu/docs/Dasgupta-Papadimitriou-Vazirani.pdf][url]]
+- DPV :: S. Dasgupta, C. H. Papadimitriou, and U. V. Vazirani,
+         Algorithms. 2006. [[http://algorithmics.lsi.upc.edu/docs/Dasgupta-Papadimitriou-Vazirani.pdf][url]]
 
-- J. Kleinberg and E. Tardos, Algorithm Design. 2005. [[https://www.pearsonhighered.com/program/Kleinberg-Algorithm-Design/PGM319216.html][url]]
+- KT :: J. Kleinberg and E. Tardos, Algorithm Design. 2005. [[https://www.pearsonhighered.com/program/Kleinberg-Algorithm-Design/PGM319216.html][url]]
 
-- Python Algorithms
+- LH :: Magnus Lie Hetland, Python Algorithms.
 
 * Links
 

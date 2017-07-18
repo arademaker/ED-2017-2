@@ -3,9 +3,9 @@
 
 ;; heap indexing starts from 0.
 
-;;;;;;;;;;;;;;
-;;validation;;
-(defun validate-heap-size(n &optional (iter 1) (total 1))
+;; validation
+
+(defun validate-heap-size (n &optional (iter 1) (total 1))
   "returns the appropriate size for a complete tree."
   (cond ((= n total)
 	  n)
@@ -14,7 +14,7 @@
 	((< n total)
 	 total)))
 
-(defun validate-heap(heap)
+(defun validate-heap (heap)
   "validates a heap."
   (let* ((last-ix (heap-last-ix heap))
 	 (last-parent-ix (parent-ix last-ix)))
@@ -25,11 +25,12 @@
 		   (assert (heap>= (right-child heap ix) parent)))))
   heap)
 
-;;;;;;;;;
-;;start;;
-(defun start-heap(n &optional init-values)
+
+;; start
+
+(defun start-heap (n &optional init-values)
   "starts up heap (array) with n slots. if n does not make the tree
-complete, use the nearest integer greater than n that would do so."
+   complete, use the nearest integer greater than n that would do so."
   (let* ((n (validate-heap-size n))
 	 (heap (make-array n :initial-element nil)))
     (if (endp init-values)
