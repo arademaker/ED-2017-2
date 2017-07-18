@@ -100,7 +100,7 @@ de /ccomp/.
 Esta consulta seria escrita na linguagem de query do link acima como:
 
 #+BEGIN_EXAMPLE
-VERB <ccomp VERB
+VERB <ccomp L=correr
 #+END_EXAMPLE
 
 Para este projeto, precisaremos pensar em várias questões ligadas ao
@@ -132,7 +132,7 @@ Então podemos aplicar a mesma idéia para nosso projeto. Ao invés de
 receber algo como:
 
 #+BEGIN_EXAMPLE
-(query "VERB <ccomp VERB" ...)
+(query "VERB <ccomp L=correr" ...)
 #+END_EXAMPLE
 
 Podemos começar tentando implementar uma função =qi= (de
@@ -141,18 +141,17 @@ e gera uma função que pode ser passada para a função =find-if= de
 Lisp.
 
 #+BEGIN_SRC lisp
-  "VERB <ccomp VERB"
-  (find-if (qi '(ccomp (pos "VERB") (pos "VERB")))
-	   ...)
-
-  "VERB <ccomp L=ir"
-  (find-if (qi '(ccomp (pos "VERB") (lemma "ir")))
+  "VERB <ccomp L=correr"
+  (find-if (qi '(ccomp (pos "VERB") (lemma "correr")))
 	   ...)
 
   "_ >nmod (_ >nmod _)"
   (find-if (qi '(nmod (nmod _ _) _))
 	   ...)
 #+END_SRC
+
+O último exemplo mostra como os operadores básicos podem ser
+composicionais. Notem também a direção das setas.
 
 * Footnotes
 
