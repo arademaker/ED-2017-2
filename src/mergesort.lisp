@@ -30,7 +30,6 @@
 	    ((oddp count)
 	     (halve-list (rest list) (1+ count)
 			 list1 (cons (first list) list2))))))
-  
 
 ;; vanilla mergesort algorithm
 ;; ideal implementation would be using arrays.
@@ -59,8 +58,7 @@
 
 ;;;;;;;;;;;
 ;; counting inverses algorithm from coursera course number of
-;; inversions is 2407905288 (why does it take so long? is it
-;; reversing?)
+;; inversions is 2407905288 (is it too slow? 144 seconds)
 
 (defparameter *inversions* 0)
 
@@ -77,19 +75,18 @@ made."
   (let ((len1 (length vector1))
 	(len2 (length vector2)))
     (if (or (= len1 0) (= len2 0))
-	(concatenate 'vector (reverse sorted-vector) vector1 vector2)
+	(concatenate 'vector sorted-vector vector1 vector2)
 	(let ((first1 (svref vector1 0))
 	      (first2 (svref vector2 0)))
 	  (cond ((<= first1 first2)
+		 (progn (vector-push-extend first1 sorted-vector)
 		 (count-and-merge (subseq vector1 1) vector2
-				  (concatenate 'vector (list first1)
-					       sorted-vector)))
+				  sorted-vector)))
 		((> first1 first2)
 		 (progn (incf *inversions* len1)
+			(vector-push-extend first2 sorted-vector)
 			(count-and-merge vector1 (subseq vector2 1)
-					 (concatenate 'vector
-						      (list first2)
-						      sorted-vector)))))))))
+					 sorted-vector))))))))
 
 ;;;;;;;;;
 ;; tests
