@@ -1,8 +1,19 @@
 #+Title: Aula 07
 
-Próxima aula. 
 
-1. Programming Pearls
-2. Grafos
-3. Discussões projeto
+Falamos sobre o capítulo 3 do Algorithms (DPV), faltando apenas seção
+3.4 que pedi para todos adiantarem leitura. 
 
+Discutimos diferentes repretações possíveis de grafos e o uso dos
+algorítmos e suas implementações.
+
+* Tarefas
+
+- Ler o artigo: J. Bentley, “Programming pearls: algorithm design
+  techniques,” Commun. ACM, 1984. (vide Google Drive da turma)
+
+- Reportar ideías sobre o projeto! Não recebi nada de ninguém!
+
+- Terminar o Programming Assigment 1 (vide file:tarefas.org)
+
+- Ler seção 3.4. Vou escolher alguém para apresentar na próxima aula.
