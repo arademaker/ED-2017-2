@@ -16,4 +16,6 @@ algorítmos e suas implementações.
 
 - Terminar o Programming Assigment 1 (vide file:tarefas.org)
 
+- Implementar códigos do cap 3 (vide arquivos graph.* no src/)
+
 - Ler seção 3.4. Vou escolher alguém para apresentar na próxima aula.
