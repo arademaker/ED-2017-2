@@ -62,3 +62,4 @@ indices of start and end of pivot elements."
 (split-vector #(1 3 4 3 0 -1 3 8 99) -10) ; weird result, but ok as
 					  ; -10 is not on list
 (split-vector #(1 3 4 3 0 -1 3 8 99) -1)
+(split #(10 3 5 6 2 3 8 4 5 7 4) 5)
