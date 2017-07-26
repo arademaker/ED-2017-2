@@ -1,12 +1,21 @@
 ;; DPV chapter 3 -- graphs
 
 
-(defparameter *test-graph* (copy-tree '((a c)
+(defparameter *directed-graph* (copy-tree '((a c)
 					(b a d)
 					(c e f)
 					(d c)
 					(e)
 					(f))))
+
+(defparameter *undirected-graph* (copy-tree '((a b c)
+					      (b a d e)
+					      (c a d)
+					      (d b c)
+					      (e b))))
+
+(defvar dg (read-graph *directed-graph*))
+(defvar ug (read-graph *undirected-graph*))
 
 (defstruct (node
 	     (:print-function ;this will make node printing only print
@@ -47,10 +56,17 @@ adjacent to it."
   (find node-label (graph-nodes graph)
 	:key (lambda (node) (node-label node))))
 
+(defun nodefy (node-label graph)
+  (if (node-p node-label)
+      node-label
+      (get-node graph node-label)))
+
 (defun visit-node (node)
   (setf (node-visited node) t))
 
-(defun df-explore-from-node (graph node &optional (pre-visit #'visit-node) (post-visit #'identity))
+(defun df-explore-from-node (graph node &optional
+					  (pre-visit #'visit-node)
+					  (post-visit #'identity))
   "depth-first exploration from a node."
   (funcall pre-visit node)
   (dolist (adj-label (node-adj-labels node))
@@ -59,14 +75,56 @@ adjacent to it."
 	(df-explore-from-node graph adj-node pre-visit post-visit)))
     (funcall post-visit node)))
 
-(defun df-explore-from-label (graph node-label &optional (pre-visit #'visit-node) (post-visit #'identity))
-  (df-explore-from-node (get-node graph node-label) pre-visit post-visit))
+(defun df-explore-from-label (graph node-label
+			      &optional (pre-visit #'visit-node)
+				(post-visit #'identity))
+  (df-explore-from-node (get-node graph node-label)
+			pre-visit post-visit))
 
-(defun df-explore (graph &optional (pre-visit #'visit-node) (post-visit #'identity))
+(defun df-explore (graph &optional (pre-visit #'visit-node)
+			   (post-visit #'identity))
   (dolist (node (graph-nodes graph))
     (when (null (node-visited node))
-      (df-explore-from graph node pre-visit post-visit))))
+      (df-explore-from-node graph node pre-visit post-visit))))
+
+(defun is-adjacent-node (node adj)
+  "check if adj is adjacent to node."
+  (if (member (node-label adj) (node-adj-labels node))
+      t
+      nil))
+
+(defun are-adjacent-label (graph &rest node-labels)
+  "check if every node in (rest node-labels) is adjacent to (first
+node-labels)"
+  (let ((nodes (mapcar (lambda (node-label) (nodefy node-label graph))
+		       node-labels)))
+    (notany #'null (mapcar (lambda (node)
+			     (is-adjacent-node (first nodes) node))
+	    (rest nodes)))))
+#|
+(defun vertices-reciprocal-p (node graph) ;doing a lot of duplicate work
+  "check if node is adjacent to all nodes adj to node."
+  (notany #'null (mapcar (lambda (adj-label)
+	    (is-adjacent-node (get-node graph adj-label) node))
+			 (node-adj-labels node))))
+|#
+(defun vertices-reciprocal-p (node graph) ;doing a lot of duplicate work
+  "check if node is adjacent to all nodes adj to node."
+  (are-adjacent-label graph node (values (node-adj-labels node)))) ;; how to have this conform to the argument list of are-adjacent-label?
+
+(defun directedp (graph)
+  (notany #'null (mapcar (lambda (node)
+			   (vertices-reciprocal-p node graph))
+			 (graph-nodes graph))))
   
-	
-	
-  
+;; tests
+
+(is-adjacent-node (get-node dg 'a) (get-node dg 'c)) ; t
+(is-adjacent-node (get-node ug 'a) (get-node ug 'c)) ; t
+(is-adjacent-node (get-node dg 'c) (get-node dg 'd)) ; nil
+(is-adjacent-node (get-node ug 'a) (get-node ug 'b)) ; nil
+(are-adjacent-label ug 'a 'c) ; t
+(are-adjacent-label ug 'b 'a 'd) ; t
+(are-adjacent-label ug 'b 'a 'c) ; nil
+(vertices-reciprocal-p (get-node dg 'A) dg) ; nil
+(vertices-reciprocal-p (get-node ug 'A) ug) ; t
