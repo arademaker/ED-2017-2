@@ -3,6 +3,15 @@
 
 ;; heap indexing starts from 0.
 
+;; can make one general function out of heap-swap-up/d
+
+(defstruct (heap (:print-function
+		   (lambda (heap stream k)
+		     (identity k)
+		     (format stream "h~A" (heap-vector heap)))))
+  (vector nil)
+  (predicate #'>=))
+
 ;; validation
 
 (defun validate-heap-size (n &optional (iter 1) (total 1))
@@ -14,11 +23,13 @@
 	((< n total)
 	 total)))
 
-(defun validate-heap (heap &optional predicate)
+(defun validate-heap (heap)
   "validates a heap."
   (let* ((last-ix (heap-last-ix heap))
-	 (last-parent-ix (parent-ix last-ix)))
-    (loop for parent being the elements of (the array heap)
+	 (last-parent-ix (parent-ix last-ix))
+	 (predicate (heap-predicate heap)))
+    (loop for parent being the elements of
+	 (the array (heap-vector heap))
        for ix from 0
        if (<= ix last-parent-ix)
        do (progn (assert (heap>=
@@ -30,75 +41,73 @@
 
 ;; start
 
-(defun start-heap (n &optional init-values)
-  "starts up heap (array) with n slots. if n does not make the tree
-   complete, use the nearest integer greater than n that would do so."
-  (let* ((n (validate-heap-size n))
-	 (heap (make-array n :initial-element nil)))
-    (if (endp init-values)
-	heap
-	(feed-heap heap init-values))))
-
-(defun feed-heap(heap init-values)
+(defun feed-heap (heap init-values)
   "insert values in heap. values must be list."
   (if (endp init-values)
       heap
       (feed-heap (heap-insert heap (first init-values))
 		 (rest init-values))))
 
+(defun start-heap (n &key init-values (predicate #'>=))
+  "starts up heap (array) with n slots. if n does not make the tree
+   complete, use the nearest integer greater than n that would do so."
+  (let* ((n (validate-heap-size n))
+	 (heap-vec (make-array n :initial-element nil))
+	 (heap (make-heap :vector heap-vec :predicate predicate)))
+    (feed-heap heap init-values)))
+
 ;;;;;;;;;;;;;
 ;;auxiliary;;
-(defun heap-nth(heap n)
+(defun heap-nth (heap n)
   "gets nth element of heap"
-  (svref heap n))
+  (svref (heap-vector heap) n))
 
 (defun (setf heap-nth) (value heap ix)
   "defines (setf heap-nth as would be expected."
-  (setf (svref heap ix) value))
+  (setf (svref (heap-vector heap) ix) value))
 
-(defun find-min(heap)
+(defun find-min (heap)
   "returns first element of array, which is minimum value of array."
   (heap-nth heap 0))
 
-(defun heap-last-ix(heap)
+(defun heap-last-ix (heap)
   "returns heap's last ix."
-  (1- (array-dimension heap 0)))
+  (1- (array-dimension (heap-vector heap) 0)))
 
-(defun heap-length(heap)
+(defun heap-length (heap)
   "returns index of first nil element in array."
-  (position nil heap))
+  (position nil (heap-vector heap)))
 
-(defun set-heap-end(heap element)
+(defun set-heap-end (heap element)
   "sets last node of heap to the given element."
   (setf (heap-nth heap (heap-length heap)) element)
   heap)
 
-(defun left-child-ix(ix)
+(defun left-child-ix (ix)
   "returns ix of left child of ix."
   (1+ (* 2 ix)))
 
-(defun left-child(heap ix)
+(defun left-child (heap ix)
   "returns left child of ix."
   (heap-nth heap (left-child-ix ix)))
 
-(defun right-child-ix(ix)
+(defun right-child-ix (ix)
   "returns ix of the right child of ix."
   (* 2 (1+ ix)))
 
-(defun right-child(heap ix)
+(defun right-child (heap ix)
   "returns the right child of ix."
   (heap-nth heap (right-child-ix ix)))
 
-(defun parent-ix(ix)
+(defun parent-ix (ix)
   "returns ix of the parent of ix."
-  (let ((parent-ix (floor (/ (1- ix) 2))))
-    parent-ix))
+  (floor (/ (1- ix) 2)))
 
-(defun parent(heap ix)
+(defun get-parent (heap ix)
   "returns the parent of the ix."
   (heap-nth heap (parent-ix ix)))
 
-(defun heap>=(element1 element2 &optional (predicate #'>=))
+(defun heap>= (element1 element2 &optional (predicate #'>=))
   "same as >= but defines what happens when first element is nil."
   (cond ((null element1)
 	 t)
@@ -108,57 +117,59 @@
 
 ;;;;;;;;;;;;;;
 ;;operations;;
-(defun heap-insert(heap element)
+(defun heap-insert (heap element)
   "inserts element into heap."
   (let ((heaplen (heap-length heap)))
     (heapify-up (set-heap-end heap element) heaplen)))
 
-(defun heapify-up(heap ix)
+(defun heap-swap! (heap ix parent-ix)
+  "rotates elements of indexes ix and parent-ix in heap."
+  (rotatef (heap-nth heap parent-ix) (heap-nth heap ix))
+  heap)
+
+(defun heap-swap-up? (heap ix)
+  "should we swap element at ix by its parent?"
+  (let ((parent-ix (parent-ix ix))
+	(parent (get-parent heap ix))
+	(node (heap-nth heap ix))
+	(predicate (heap-predicate heap)))
+    (if (heap>= parent node predicate)
+	(heapify-up (heap-swap! heap ix parent-ix) parent-ix)
+	heap)))
+
+(defun heapify-up (heap ix)
   "checks if element at index ix is in correct position relative to
 its parent"
   (if (equal ix 0)
       heap
       (heap-swap-up? heap ix)))
 
-(defun heap-swap-up?(heap ix &optional predicate)
-  "should we swap element at ix by its parent?"
-  (let ((parent-ix (parent-ix ix))
-	(parent (parent heap ix))
-	(node (heap-nth heap ix)))
-    (if (heap>= parent node predicate)
-	(heapify-up (heap-swap! heap ix parent-ix) parent-ix)
-	heap)))
-
-(defun heap-swap!(heap ix parent-ix)
-  "rotates elements of indexes ix and parent-ix in heap."
-  (rotatef (heap-nth heap parent-ix) (heap-nth heap ix))
-  heap)
-
-(defun smallest-child(heap ix)
+(defun smallest-child (heap ix)
   "given index ix returns the index of the smallest child."
   (let ((right (right-child heap ix))
 	(left (left-child heap ix)))
-    (if (>= right left)
+    (if (funcall (heap-predicate heap) right left)
 	(left-child-ix ix)
 	(right-child-ix ix))))
 
-(defun heap-swap-d?(heap child-ix &optional predicate)
+(defun heap-swap-d? (heap child-ix)
   "should we swap element at ix by its parent?"
   (let ((parent-ix (parent-ix child-ix))
-	(parent (parent heap child-ix))
-	(child (heap-nth heap child-ix)))
+	(parent (get-parent heap child-ix))
+	(child (heap-nth heap child-ix))
+	(predicate (heap-predicate heap)))
     (if (heap>= parent child predicate)
 	(heapify-down (heap-swap! heap child-ix parent-ix) child-ix)
 	heap)))
   
-(defun heapify-down(heap ix)
+(defun heapify-down (heap ix)
   "checks if element at index ix is in correct position relative to
 its children."
   (if (> (left-child-ix ix) (heap-length heap))
       heap
       (heap-swap-d? heap (smallest-child heap ix))))
 
-(defun heap-delete(heap ix)
+(defun heap-delete (heap ix)
   "deletes element at index ix in heap."
   (let ((rm-element (heap-nth heap ix)))
     (setf (heap-nth heap ix) nil)
@@ -169,7 +180,7 @@ its children."
 
 (validate-heap-size 5) ; not ok: 7
 (validate-heap-size 7) ; 7
-(start-heap 7 '(5 6 3 2 9 10 1)) ; #(1 3 2 6 9 10 5)
-(validate-heap #(1 3 2 6 9 10 5)) ; #(1 3 2 6 9 10 5)
+(start-heap 7 :init-values '(5 6 3 2 9 10 1)) ; #(1 3 2 6 9 10 5)
+(validate-heap (make-heap :vector #(1 3 2 6 9 10 5))) ; #(1 3 2 6 9 10 5)
 ;;(validate-heap #(1 3 2 6 9 10 1)) ; assertion error
-(start-heap 7 '(5 6 3 2 9 10 1)) ; #(1 3 2 6 9 10 5)
+(start-heap 7 :init-values '(5 6 3 2 9 10 1)) ; #(1 3 2 6 9 10 5)
