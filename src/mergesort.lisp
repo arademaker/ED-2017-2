@@ -65,7 +65,7 @@
 (defun merge-and-count (vector)
   "sort a vector made up of integers and return number of inversions
 made."
-  (defparameter *inversions* 0)
+  (setf *inversions* 0)
   (let ((sorted-vector (mergesort-skeleton vector #'count-and-merge)))
     (values *inversions* sorted-vector)))
 

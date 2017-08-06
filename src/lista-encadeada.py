@@ -37,5 +37,6 @@ class cons:
 
 a = cons(1, cons(4, cons('5', cons(True, cons((3, 4))))))
 assert a.search(2) == '5'
+assert a.search(1) = 4
 assert a.search(4) == a.recursive_search(4)
 assert a.search(3)
