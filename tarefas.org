@@ -9,6 +9,7 @@ Entregas:
 
 - João Marcos
 - Julio Vieira
+- Graziele dos Santos Cerqueira
 
 * Lista 2
 
@@ -26,7 +27,13 @@ Entregas:
 
 * Programming Assigments 
 
-- Programming Assigment 1: Vide Google Drive (diretório coursera
-  arquivo programming-assignment-1.org)
+** Programming Assigment 1: 
+
+Vide Google Drive (diretório coursera arquivo
+programming-assignment-1.org)
+
+Entregas:
+
+- Graziele Dos Santos Cerqueira (E)
 
 
