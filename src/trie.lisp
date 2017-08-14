@@ -5,25 +5,13 @@
 		   (lambda (trie stream k)
 		     (identity k)
 		     (format stream "t#(~A)" (trie-root trie)))))
-  (root nil)
-  (predicate #'string<))
+  (root nil))
 
 (defstruct (node (:print-function
 		   (lambda (node stream k)
 		     (identity k)
 		     (format stream "n\"~A\"" (node-value node)))))
-  (value (error "must specify value for node."))
-  (children nil))
-
-(defun split-by-one-space (string)
-    "Returns a list of substrings of string divided by ONE space each.
-Note: Two consecutive spaces will be seen as if there were an empty
-string between them."
-    ;; from cl-cookbook
-    (loop for i = 0 then (1+ j)
-          as j = (position #\Space string :start i)
-          collect (subseq string i j)
-       while j))
+  (value (error "must specify value for node.")))
 
 (defun read-file (filepath)
   (with-open-file (stream filepath)
@@ -31,11 +19,41 @@ string between them."
        while line
        collect line)))
 
-(defun read-entities (filepath)
-  (mapcar #'split-by-one-space (read-file filepath)))
+(defun search-trie (trie value)
+  (rest (assoc value trie :test #'char=)))
+
+(defun insert-node-aux (trie node-value &optional result)
+  (if (= (length node-value) 0)
+      (acons (first result) (rest result) trie)
+      (insert-node-aux trie (subseq node-value 1)
+		       (cons (char node-value 0) result))))
+
+(defun insert-node (trie node-value)
+  (insert-node-aux trie (reverse node-value)))
+
+(defun add-node (trie node-value)
+  (let* ((curr (char node-value 0))
+	(searched-trie (search-trie trie curr)))
+    (if (null searched-trie)
+	(insert-node trie node-value)
+	(acons curr (cons searched-trie
+			  (add-node searched-trie
+				    (subseq node-value 1)))
+	       trie))))
+  
+
+(defun construct-trie (trie node-values)
+  (if (endp node-values)
+      trie
+      (add-node trie node-value)))
+
+(defun start-trie (node-values)
+  (let ((trie (make-trie :root nil)))
+    (construct-trie trie node-values)))
+    
 
 (defun search-similarities (entity entities &optional nodes)
-  (let* ((other-entity (caar entities))
+  (let* ((other-entity (first entities))
 	 (intersec (string<= entity other-entity)))
     (if (= intersec 0)
 	nodes
