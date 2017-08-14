@@ -58,16 +58,19 @@
 
 ;;;;;;;;;;;
 ;; counting inverses algorithm from coursera course number of
-;; inversions is 2407905288 (is it too slow? 144 seconds)
-
-(defparameter *inversions* 0)
+;; inversions is 2407905288
+(let ((count 0))
+  (defun reset-counter (&optional (reset-value 0))
+    (setf count reset-value))
+  (defun counter (&optional (increment 1))
+    (incf count increment)))
 
 (defun merge-and-count (vector)
   "sort a vector made up of integers and return number of inversions
 made."
-  (setf *inversions* 0)
+  (reset-counter)
   (let ((sorted-vector (mergesort-skeleton vector #'count-and-merge)))
-    (values *inversions* sorted-vector)))
+    (values (counter 0) sorted-vector)))
 
 (defun count-and-merge (vector1 vector2 &optional (sorted-vector (make-array 100000 :adjustable t :fill-pointer 0)))
   "merge two vectors in sorting order and counts number of inversions
@@ -83,14 +86,13 @@ made."
 		 (count-and-merge (subseq vector1 1) vector2
 				  sorted-vector)))
 		((> first1 first2)
-		 (progn (incf *inversions* len1)
+		 (progn (counter len1)
 			(vector-push-extend first2 sorted-vector)
 			(count-and-merge vector1 (subseq vector2 1)
 					 sorted-vector))))))))
 
 ;;;;;;;;;
 ;; tests
-
 (mergesort (list 83 934 3 -1 -99 3))
 (mergesort (list 43 -525 3 -1 5 10 -1 5 -5))
 (mergesort nil)
