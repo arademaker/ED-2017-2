@@ -2,13 +2,14 @@
 ;; placed in the public domain.
 
 ;; any node at any point of a trie is itself a trie (as a trie is
-;; characterized by a root node and its children
+;; characterized by a root node and its children.
 (defstruct (trie (:print-function
 		   (lambda (node stream k)
 		     (identity k)
 		     (format stream "n\"~A\"" (trie-value node)))))
-  (value)
-  (children))
+  (value 'ROOT)
+  (children)
+  (is-leaf?))
 
 (defun read-file (filepath)
   (with-open-file (stream filepath)
@@ -32,64 +33,74 @@
   (let ((trie-children (trie-children trie)))
     (search-children-aux trie-children character)))
 
-(defun search-trie-aux (trie value &optional (chars 0))
-  (let ((result (search-children trie (first value))))
-    (if (or (endp value) (null result))
-	(values result chars)
-	(search-trie-aux result (rest value) (1+ chars)))))
+(defun search-trie-aux (trie chars &optional (ix 0))
+  (when (endp chars)
+    (return-from search-trie-aux (values trie ix)))
+  (let ((match (search-children trie (first chars))))
+    (if (null match)
+	(values trie ix)
+	(search-trie-aux match (rest chars) (1+ ix)))))
+;; returns number of chars to see if perfect match or not
 
 (defun search-trie (trie value)
   (search-trie-aux trie (str-to-char value)))
 
+(defun is-leaf? (trie)
+  (when (trie-is-leaf? trie) t))
+
+(defun value-in-trie? (trie value)
+  (multiple-value-bind (trie-node ix) (search-trie trie value)
+    (when (and (= (length value) ix)
+	       (is-leaf? trie-node))
+      t)))
+
 (defun add-char-to-children (trie char)
-  (push (make-trie :value char) (trie-children trie)))
+  (push (make-trie :value char) (trie-children trie))
+  (search-children trie char))
 
 (defun insert-node (trie value)
+  "add value which is not present in trie."
   (if (endp value)
-      trie
+      (progn (setf (trie-is-leaf? trie) t)
+	     trie)
       (insert-node (add-char-to-children trie (first value))
 		   (rest value))))
 
-(defun add-node (trie value)
-  (let ((value (str-to-char value)))
-    (multiple-value-bind (result-trie ix)
+(defun add-node-aux (trie value)
+  (multiple-value-bind (result-trie ix)
 	(search-trie-aux trie value)
     (if (= (length value) ix)
 	trie
-	(insert-node result-trie (subseq value ix))))))
+	(insert-node result-trie (subseq value ix)))))
 
-(defun construct-trie (trie node-values)
-  (if (endp node-values)
+(defun add-node (trie value)
+  (let ((value (str-to-char value)))
+    (add-node-aux trie value)
+    trie)) ;; returns root instead of leaf
+    
+(defun construct-trie (trie values)
+  (if (endp values)
       trie
-      (add-node trie node-value)))
+      (construct-trie (add-node trie (first values))
+		      (rest values))))
 
 (defun start-trie (node-values)
-  (let ((trie (make-trie :root nil)))
+  (let ((trie (make-trie)))
     (construct-trie trie node-values)))
-    
 
-(defun search-similarities (entity entities &optional nodes)
-  (let* ((other-entity (first entities))
-	 (intersec (string<= entity other-entity)))
-    (if (= intersec 0)
-	nodes
-	(search-similarities entity (rest entities)
-			     (cons (list (subseq entity 0 intersec)
-					 entity other-entity)
-				   nodes)))))
+;; tests
 
-(defun construct-trie (entities &optional (trie nil) (predicate #'string<))
-  (let ((entity (first entities)))
-    (search-similarities entity entities)
-
-(defun join-string (list &optional (delimiter #\ ))
-  (with-output-to-string (stream)
-    (join-to-stream stream list delimiter)))
-
-(defun join-to-stream (stream list &optional (delimiter #\&))
-  (destructuring-bind (&optional first &rest rest) list
-    (when first
-      (write-string first stream)
-      (when rest
-        (write-char delimiter stream)
-        (join-to-stream stream rest delimiter)))))
+(let* ((list-trie (list "amanda silva" "amanda silvana"
+				 "amanda silvana da silva"
+				 "armando silva"
+				 "júpiter"
+				 "secretaria municipal de cultura"
+				 "secretaria municipal de zoologia"))
+       (test-trie (start-trie list-trie)))
+  (is-leaf? test-trie) ; nil
+  (search-trie test-trie "amanda") ; n"a" 6
+  (search-trie test-trie "amanda silva") ; n"a" 12
+  (value-in-trie? test-trie "amanda") ; nil
+  (value-in-trie? test-trie "amanda silva") ; t
+  (value-in-trie? test-trie "amanda silvan") ; nil
+  )
