@@ -45,14 +45,16 @@
 (defun search-trie (trie value)
   (search-trie-aux trie (str-to-char value)))
 
-(defun is-leaf? (trie)
-  (when (trie-is-leaf? trie) t))
+(defun partially-in-trie? (trie value)
+  (multiple-value-bind (trie-node ix) (search-trie trie value)
+    (when (= (length value) ix)
+      trie-node)))
 
 (defun value-in-trie? (trie value)
   (multiple-value-bind (trie-node ix) (search-trie trie value)
     (when (and (= (length value) ix)
-	       (is-leaf? trie-node))
-      t)))
+	       (trie-is-leaf? trie-node))
+      trie-node)))
 
 (defun add-char-to-children (trie char)
   (push (make-trie :value char) (trie-children trie))
@@ -100,7 +102,9 @@
   (is-leaf? test-trie) ; nil
   (search-trie test-trie "amanda") ; n"a" 6
   (search-trie test-trie "amanda silva") ; n"a" 12
+  (partially-in-trie? test-trie "amanda") ; t
   (value-in-trie? test-trie "amanda") ; nil
+  (partially-in-trie? test-trie "amanda silva") ; t
   (value-in-trie? test-trie "amanda silva") ; t
   (value-in-trie? test-trie "amanda silvan") ; nil
   )
