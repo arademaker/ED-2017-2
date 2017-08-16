@@ -6,8 +6,8 @@
 (defstruct (trie (:print-function
 		   (lambda (node stream k)
 		     (identity k)
-		     (format stream "n\"~A\"" (trie-value node)))))
-  (value 'ROOT)
+		     (format stream "|~A|" (trie-value node)))))
+  (value "ROOT")
   (children)
   (is-leaf?))
 
@@ -33,25 +33,27 @@
   (let ((trie-children (trie-children trie)))
     (search-children-aux trie-children character)))
 
-(defun search-trie-aux (trie chars &optional (ix 0))
+;; maybe divide in two?
+(defun search-trie-aux (trie chars &optional path (ix 0))
   (when (endp chars)
-    (return-from search-trie-aux (values trie ix)))
+    (return-from search-trie-aux (values trie path ix)))
   (let ((match (search-children trie (first chars))))
     (if (null match)
-	(values trie ix)
-	(search-trie-aux match (rest chars) (1+ ix)))))
-;; returns number of chars to see if perfect match or not
+	(values trie path ix) ; returns reverse path
+	(search-trie-aux match (rest chars)
+			 (cons match path) (1+ ix)))))
 
 (defun search-trie (trie value)
   (search-trie-aux trie (str-to-char value)))
 
 (defun partially-in-trie? (trie value)
-  (multiple-value-bind (trie-node ix) (search-trie trie value)
-    (when (= (length value) ix)
-      trie-node)))
+  (multiple-value-bind (* path ix) (search-trie trie value)
+    (when (= (length value) ix) ; checking for length is enough
+      path)))
 
 (defun value-in-trie? (trie value)
-  (multiple-value-bind (trie-node ix) (search-trie trie value)
+  "returns nil or leaf"
+  (multiple-value-bind (trie-node * ix) (search-trie trie value)
     (when (and (= (length value) ix)
 	       (trie-is-leaf? trie-node))
       trie-node)))
@@ -68,27 +70,22 @@
       (insert-node (add-char-to-children trie (first value))
 		   (rest value))))
 
-(defun add-node-aux (trie value)
-  (multiple-value-bind (result-trie ix)
-	(search-trie-aux trie value)
-    (if (= (length value) ix)
-	trie
-	(insert-node result-trie (subseq value ix)))))
-
 (defun add-node (trie value)
   (let ((value (str-to-char value)))
-    (add-node-aux trie value)
-    trie)) ;; returns root instead of leaf
+    (multiple-value-bind (trie-node * ix) (search-trie-aux trie value)
+      (if (= (length value) ix)
+	  trie-node
+	  (insert-node trie-node (subseq value ix))))))
     
-(defun construct-trie (trie values)
+(defun construct-trie (root-trie values)
   (if (endp values)
-      trie
-      (construct-trie (add-node trie (first values))
-		      (rest values))))
+      root-trie
+      (progn (add-node root-trie (first values))
+	     (construct-trie root-trie (rest values)))))
 
 (defun start-trie (node-values)
-  (let ((trie (make-trie)))
-    (construct-trie trie node-values)))
+  (let ((trie-root (make-trie)))
+    (construct-trie trie-root node-values)))
 
 ;; tests
 
@@ -99,12 +96,13 @@
 				 "secretaria municipal de cultura"
 				 "secretaria municipal de zoologia"))
        (test-trie (start-trie list-trie)))
-  (is-leaf? test-trie) ; nil
-  (search-trie test-trie "amanda") ; n"a" 6
-  (search-trie test-trie "amanda silva") ; n"a" 12
-  (partially-in-trie? test-trie "amanda") ; t
+  (trie-is-leaf? test-trie) ; nil
+  (search-trie test-trie "amanda") ; |a| (|a| |d| |n| |a| |m| |a|) 6
+  (search-trie test-trie "xesus") ; |ROOT| NIL 0
+  (search-trie test-trie "amanda silva") ; |a| (|a| |v| |l| ... |a|) 12
+  (partially-in-trie? test-trie "amanda") ; (|a| |d| |n| |a| |m| |a|)
   (value-in-trie? test-trie "amanda") ; nil
-  (partially-in-trie? test-trie "amanda silva") ; t
-  (value-in-trie? test-trie "amanda silva") ; t
+  (partially-in-trie? test-trie "amanda silva") ; (|a| |v| |l| |i| ...
+  (value-in-trie? test-trie "amanda silva") ; |a| leaf
   (value-in-trie? test-trie "amanda silvan") ; nil
   )
