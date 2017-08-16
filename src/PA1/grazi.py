@@ -18,17 +18,8 @@ def merge_count_split (a, b):
                 elif j == len(b):
                         res.append(a[i])
                         i += 1
-        return res, inv_count
-
-def sort_and_count (data):
-        n = len(data)
-        if n <= 1:
-                return data, 0
-        a, x = sort_and_count(data[:(n/2)])
-        b, y = sort_and_count(data[(n/2):])
-        c, z = merge_count_split(a,b)
-        return c, x + y + z
+        return res
 
 with open('IntegerArray.txt') as f:
         array = [int(line) for line in f]
-        print sort_and_count(array)[0]
+        print res(array)[0]
