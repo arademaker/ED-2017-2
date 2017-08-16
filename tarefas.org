@@ -7,6 +7,7 @@
 
 Entregas:
 
+- Bruno Cuconato
 - João Marcos
 - Julio Vieira
 - Graziele dos Santos Cerqueira
@@ -16,12 +17,17 @@ Entregas:
 - implementar função que dado índice do elemento desejado da lista
   encadeada, retorna esse elemento
 
+Entregas:
+
+- Bruno Cuconato
+
 * Lista 3
 
 1. DPV: 2.2, 2.3, 2.4, 2.15, 2.17, 2.19, 2.20
 
 Entregas:
 
+- Bruno Cuconato
 - Julio Vieira
 - Graziele Dos Santos Cerqueira
 
@@ -34,6 +40,7 @@ programming-assignment-1.org)
 
 Entregas:
 
+- Bruno Cuconato
 - Graziele Dos Santos Cerqueira (E)
 - Julio Vieira
 
