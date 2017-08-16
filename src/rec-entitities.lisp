@@ -1,7 +1,8 @@
 ;; authors: bruno cuconato (@odanoburu)
 ;; placed in the public domain.
 
-;; como lidar com pontuação? (mexer no input de entidades?)
+;; como lidar com pontuação? (mexer no input de entidades?) ou assim
+;; tá ok?
 
 (ql:quickload :cl-conllu)
 (load #p"/home/bruno/git/ed-2017-2/src/trie.lisp")
@@ -9,7 +10,7 @@
 (defun unwind-entity (entity)
   (when entity
     (if (trie-is-leaf? (first entity))
-	(reverse entity)
+	(print (reverse entity))
 	(unwind-entity (rest entity)))))
 
 (defun get-token-form (token)
@@ -31,29 +32,33 @@ in trie returns nil"
 		trie-node))))))
 
 (defun aux-recognize-ents-in-tokens (trie token-list &optional entity)
-  (if token-list
-      (let ((trie-node (token-in-trie? trie (first token-list))))
-	(cond ((and (null entity) (null trie-node))
-	       (aux-recognize-ents-in-tokens trie (rest token-list)))
-	      ((and (null trie-node) entity)
-	       (values token-list (unwind-entity entity)))
-	      ((and trie-node)
-	       (aux-recognize-ents-in-tokens trie-node (rest token-list)
-					     (cons trie-node entity)))))
-      (values nil (unwind-entity entity))))
+  (let ((trie-path (token-in-trie? trie (first token-list))))
+    (cond ((and (null entity)
+		(null trie-path))
+	   (values (rest token-list) nil))
+	  ((and (null trie-path) entity)
+	   (values token-list entity))
+;; not (rest token-list) to give tk a fresh chance, but will only give
+;; this chance to last tk. (think of searching for joão almeida de
+;; castro when only joão almeida and joão almeida de silva are ents:
+;; only castro will be reconsidered). is that a problem?
+	  ((and trie-path entity)
+	   (aux-recognize-ents-in-tokens (first trie-path)
+					 (rest token-list)
+					 (cons trie-path entity))))))
 
 (defun recognize-ents-in-tokens (trie token-list)
   (when token-list
     (multiple-value-bind (rest-token-list entity)
 	(aux-recognize-ents-in-tokens trie token-list)
-      (print entity)
+      (unwind-entity entity)
       (recognize-ents-in-tokens trie rest-token-list))))
 
 (defun construct-token-list-aux (tokens begin end
 				 &key token-list mtoken)
-  ;; because an mtoken can be the last one in a sentence
   (when (endp tokens) (return-from construct-token-list-aux
 			(values nil token-list)))
+;; because an mtoken can be the last one in a sentence.
   (let* ((token (first tokens))
 	(token-id (cl-conllu:token-id token))
 	(rest-tokens (rest tokens)))
@@ -79,7 +84,7 @@ mtokens: (pt em o governo) -> (pt no governo)"
       (append (reverse token-list) tokens)
       (let* ((mtoken (first mtokens))
 	     (begin (cl-conllu:mtoken-start mtoken))
-	    (end (cl-conllu:mtoken-end mtoken)))
+	     (end (cl-conllu:mtoken-end mtoken)))
 	(multiple-value-bind (rest-tokens result-token-list)
 	    (construct-token-list-aux tokens begin end :mtoken mtoken)
 	  (construct-token-list rest-tokens (rest mtokens)
@@ -97,3 +102,9 @@ mtokens: (pt em o governo) -> (pt no governo)"
   (when sentences
     (recognize-ents-in-sentence trie (first sentences))
     (recognize-ents-in-sentences trie (rest sentences))))
+
+
+;; tests
+(let ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
+      (trie (start-trie (read-file "~/git/ed-2017-2/src/entities.txt"))))
+  (recognize-ents-in-sentences trie sents))
