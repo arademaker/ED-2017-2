@@ -7,11 +7,31 @@
 (ql:quickload :cl-conllu)
 (load #p"/home/bruno/git/ed-2017-2/src/trie.lisp")
 
+(let (entities)
+  (defun insert-entity (entity)
+    (push entity entities))
+  (defun show-entities ()
+    entities)
+  (defun reset-entities ()
+    (setf entities nil)))
+
+(defun join-tokens (tokens &optional joined-tokens)
+  (if (endp tokens)
+      (subseq joined-tokens 1)
+      (join-tokens (rest tokens) (concatenate 'string (list #\space)
+					      (first tokens)
+					      joined-tokens))))
+
+(defun process-entity (entity)
+  (insert-entity (join-tokens (mapcar (lambda (node-token)
+	    (get-token-form (rest node-token)))
+	  entity))))
+
 (defun unwind-entity (entity)
   (when entity
-    (if (trie-is-leaf? (first entity))
-	(print (reverse entity))
-	(unwind-entity (rest entity)))))
+    (if (trie-is-leaf? (caar entity))
+	(process-entity entity))
+	(unwind-entity (rest entity))))
 
 (defun get-token-form (token)
   (if (typep token 'cl-conllu:token)
@@ -22,30 +42,33 @@
   "checks if token is in trie, if it is, sees if it is followed by a
 space and returns the space node, else returns the node. if it's not
 in trie returns nil"
-  (let ((trie-node (partially-in-trie? trie (get-token-form token))))
+  (let ((trie-node (partially-in-trie?node trie
+					    (get-token-form token))))
     (when trie-node
 	(let* ((children (trie-children trie-node))
 	       (space (find #\space children :key #'trie-value)))
 	  (if space
-	      space
+	      (values space token)
 	      (when (trie-is-leaf? trie-node)
-		trie-node))))))
+		(values trie-node token)))))))
 
 (defun aux-recognize-ents-in-tokens (trie token-list &optional entity)
-  (let ((trie-path (token-in-trie? trie (first token-list))))
+  (multiple-value-bind (trie-node token)
+      (token-in-trie? trie (first token-list))
     (cond ((and (null entity)
-		(null trie-path))
-	   (values (rest token-list) nil))
-	  ((and (null trie-path) entity)
+		(null trie-node))
+	   (values (rest token-list) entity))
+	  ((and (null trie-node) entity)
 	   (values token-list entity))
 ;; not (rest token-list) to give tk a fresh chance, but will only give
 ;; this chance to last tk. (think of searching for joão almeida de
 ;; castro when only joão almeida and joão almeida de silva are ents:
 ;; only castro will be reconsidered). is that a problem?
-	  ((and trie-path entity)
-	   (aux-recognize-ents-in-tokens (first trie-path)
+	  (trie-node
+	   (aux-recognize-ents-in-tokens trie-node
 					 (rest token-list)
-					 (cons trie-path entity))))))
+					 (acons trie-node token
+						entity))))))
 
 (defun recognize-ents-in-tokens (trie token-list)
   (when token-list
@@ -103,8 +126,55 @@ mtokens: (pt em o governo) -> (pt no governo)"
     (recognize-ents-in-sentence trie (first sentences))
     (recognize-ents-in-sentences trie (rest sentences))))
 
+(defun count-and-remove (entity entities-found
+			 &optional (predicate #'equal) (count 0)
+			   filtered-entities)
+  (when (endp entities-found) (return-from count-and-remove
+				(values count filtered-entities)))
+  (let ((entity-found (first entities-found))
+	(rest-entities-found (rest entities-found)))
+    (if (funcall predicate entity entity-found)
+	(count-and-remove entity rest-entities-found predicate
+			  (1+ count) filtered-entities)
+	(count-and-remove entity rest-entities-found predicate
+			  count (cons entity-found
+					  filtered-entities)))))
+
+(defun count-and-remove-entity (entity entities-found entity-count)
+  (multiple-value-bind (count filtered-entities)
+      (count-and-remove entity entities-found)
+    (values (acons entity count entity-count) filtered-entities)))
+
+(defun count-and-remove-entities (entities entities-found
+				  &optional entity-count)
+  (if (endp entities)
+      entity-count
+      (multiple-value-bind (new-entity-count filtered-entities)
+	  (count-and-remove-entity (first entities) entities-found
+				   entity-count)
+	(count-and-remove-entities (rest entities) filtered-entities
+				   new-entity-count))))
+
 
 ;; tests
-(let ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
-      (trie (start-trie (read-file "~/git/ed-2017-2/src/entities.txt"))))
-  (recognize-ents-in-sentences trie sents))
+(join-tokens '("silva" "da" "lula")) ; "lula da silva"
+(count-and-remove 1 (list 1 52 26 73 1 0)) ; 2 (0 73 26 52)
+(count-and-remove -88 (list 1 52 26 73 1 0)) ; 0 (0 1 73 26 52 1)
+(count-and-remove (list "Lula") '(("PT") ("Lula") ("PT")
+				  ("Fernando" "Henrique" "Cardoso")
+				  ("PT") ("PT") ("PT")
+				  ("Lula") ("PT")
+				  ("Fernando" "Henrique" "Cardoso")
+				  ("PT") ("PT"))) ; 2 (("PT") ...
+(count-and-remove-entity 1 (list 1 284 1 393 0 -1) nil)
+(count-and-remove-entities (list 1 -1)
+			   (list 1 2 3 4 -1 1 8 -1 -1 3)) ;((-1 . 3)
+							  ;(1 . 2))
+(let* ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
+       (ents (read-file "~/git/ed-2017-2/src/entities.txt"))
+       (trie (start-trie ents)))
+  (reset-entities)
+  (recognize-ents-in-sentences trie sents)
+  (show-entities)
+  (count-and-remove-entities ents (show-entities)))
+;; (("Lula" . 3) ("Fernando Henrique Cardoso" . 3) ("PT" . 12) ("secretaria municipal de zoologia" . 0))

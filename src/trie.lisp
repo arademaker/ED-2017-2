@@ -46,10 +46,15 @@
 (defun search-trie (trie value)
   (search-trie-aux trie (str-to-char value)))
 
-(defun partially-in-trie? (trie value)
+(defun partially-in-trie?path (trie value)
   (multiple-value-bind (* path ix) (search-trie trie value)
     (when (= (length value) ix) ; checking for length is enough
       path)))
+
+(defun partially-in-trie?node (trie value)
+  (multiple-value-bind (trie-node * ix) (search-trie trie value)
+    (when (= (length value) ix) ; checking for length is enough
+      trie-node)))
 
 (defun value-in-trie? (trie value)
   "returns nil or leaf"
@@ -100,9 +105,9 @@
   (search-trie test-trie "amanda") ; |a| (|a| |d| |n| |a| |m| |a|) 6
   (search-trie test-trie "xesus") ; |ROOT| NIL 0
   (search-trie test-trie "amanda silva") ; |a| (|a| |v| |l| ... |a|) 12
-  (partially-in-trie? test-trie "amanda") ; (|a| |d| |n| |a| |m| |a|)
+  (partially-in-trie?path test-trie "amanda") ; (|a| |d| ... |m| |a|)
   (value-in-trie? test-trie "amanda") ; nil
-  (partially-in-trie? test-trie "amanda silva") ; (|a| |v| |l| |i| ...
+  (partially-in-trie?path test-trie "amanda silva") ; (|a| |v| |l| ...
   (value-in-trie? test-trie "amanda silva") ; |a| leaf
   (value-in-trie? test-trie "amanda silvan") ; nil
   )
