@@ -5,7 +5,8 @@
 ;; tá ok?
 
 (ql:quickload :cl-conllu)
-(load #p"/home/bruno/git/ed-2017-2/src/trie.lisp")
+(compile-file #p"trie.lisp")
+(load #p"trie.fasl")
 
 (let (entities)
   (defun insert-entity (entity)
@@ -15,15 +16,15 @@
   (defun reset-entities ()
     (setf entities nil)))
 
-(defun join-tokens (tokens &optional joined-tokens)
-  (if (endp tokens)
-      (subseq joined-tokens 1)
-      (join-tokens (rest tokens) (concatenate 'string (list #\space)
-					      (first tokens)
-					      joined-tokens))))
+(defun join-words (words &optional joined-words)
+  (if (endp words)
+      (subseq joined-words 1)
+      (join-words (rest words) (concatenate 'string (list #\space)
+					      (first words)
+					      joined-words))))
 
 (defun process-entity (entity)
-  (insert-entity (join-tokens (mapcar (lambda (node-token)
+  (insert-entity (join-words (mapcar (lambda (node-token)
 	    (get-token-form (rest node-token)))
 	  entity))))
 
@@ -127,49 +128,51 @@ mtokens: (pt em o governo) -> (pt no governo)"
     (recognize-ents-in-sentences trie (rest sentences))))
 
 (defun count-and-remove (entity entities-found
-			 &optional (predicate #'equal) (count 0)
-			   filtered-entities)
+			 &key (predicate #'string=)
+			   (count 0) filtered-entities)
   (when (endp entities-found) (return-from count-and-remove
 				(values count filtered-entities)))
   (let ((entity-found (first entities-found))
 	(rest-entities-found (rest entities-found)))
     (if (funcall predicate entity entity-found)
-	(count-and-remove entity rest-entities-found predicate
-			  (1+ count) filtered-entities)
-	(count-and-remove entity rest-entities-found predicate
-			  count (cons entity-found
-					  filtered-entities)))))
+	(count-and-remove entity rest-entities-found
+			  :predicate predicate
+			  :count (1+ count)
+			  :filtered-entities filtered-entities)
+	(count-and-remove entity rest-entities-found
+			  :predicate predicate
+			  :count count
+			  :filtered-entities (cons entity-found
+						   filtered-entities)))))
 
-(defun count-and-remove-entity (entity entities-found entity-count)
+(defun count-and-remove-entity (entity entities-found
+				entity-count predicate)
   (multiple-value-bind (count filtered-entities)
-      (count-and-remove entity entities-found)
+      (count-and-remove entity entities-found :predicate predicate)
     (values (acons entity count entity-count) filtered-entities)))
 
 (defun count-and-remove-entities (entities entities-found
-				  &optional entity-count)
+				  &key (predicate #'string=)
+				    entity-count)
   (if (endp entities)
       entity-count
       (multiple-value-bind (new-entity-count filtered-entities)
 	  (count-and-remove-entity (first entities) entities-found
-				   entity-count)
+				   entity-count predicate)
 	(count-and-remove-entities (rest entities) filtered-entities
-				   new-entity-count))))
+				   :predicate predicate
+				   :entity-count new-entity-count))))
 
 
 ;; tests
-(join-tokens '("silva" "da" "lula")) ; "lula da silva"
-(count-and-remove 1 (list 1 52 26 73 1 0)) ; 2 (0 73 26 52)
-(count-and-remove -88 (list 1 52 26 73 1 0)) ; 0 (0 1 73 26 52 1)
-(count-and-remove (list "Lula") '(("PT") ("Lula") ("PT")
-				  ("Fernando" "Henrique" "Cardoso")
-				  ("PT") ("PT") ("PT")
-				  ("Lula") ("PT")
-				  ("Fernando" "Henrique" "Cardoso")
-				  ("PT") ("PT"))) ; 2 (("PT") ...
-(count-and-remove-entity 1 (list 1 284 1 393 0 -1) nil)
+(join-words '("silva" "da" "lula")) ; "lula da silva"
+(count-and-remove 1 (list 1 52 26 73 1 0) :predicate #'=) ; 2 (0 73 26 52)
+(count-and-remove -88 (list 1 52 26 73 1 0) :predicate #'=) ; 0 (0 1...)
+(count-and-remove-entity 1 (list 1 284 1 393 0 -1)
+			 nil #'=) ; ((1 . 2)) (-1 0 393 284)
 (count-and-remove-entities (list 1 -1)
-			   (list 1 2 3 4 -1 1 8 -1 -1 3)) ;((-1 . 3)
-							  ;(1 . 2))
+			   (list 1 2 3 4 -1 1 8 -1 -1 3)
+			   :predicate #'=) ;((-1 . 3) ((1 . 2))
 (let* ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
        (ents (read-file "~/git/ed-2017-2/src/entities.txt"))
        (trie (start-trie ents)))
@@ -177,4 +180,4 @@ mtokens: (pt em o governo) -> (pt no governo)"
   (recognize-ents-in-sentences trie sents)
   (show-entities)
   (count-and-remove-entities ents (show-entities)))
-;; (("Lula" . 3) ("Fernando Henrique Cardoso" . 3) ("PT" . 12) ("secretaria municipal de zoologia" . 0))
+;; (("Lula" . 1) ("Fernando Henrique Cardoso" . 1) ("PT" . 4) ("secretaria municipal de zoologia" . 0))
