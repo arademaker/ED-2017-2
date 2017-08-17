@@ -7,8 +7,15 @@
 					    (b a d)
 					    (c e f)
 					    (d c)
-					    (e c)
+					    (e f)
 					    (f))))
+
+(defparameter *dag-graph* (copy-tree '((a c)
+				       (b a d)
+				       (c e f)
+				       (d c)
+				       (e)
+				       (f))))
 
 (defparameter *undirected-graph* (copy-tree '((a b c)
 					      (b a d e)
@@ -76,6 +83,7 @@ adjacent to it."
 
 ;; init test graphs
 (defvar dg (read-graph *directed-graph*))
+(defvar dag (read-graph *dag-graph*))
 (defvar ug (read-graph *undirected-graph*))
 
 ;; utility functions
@@ -123,31 +131,42 @@ adjacent to it."
 	       :post-visit post-visit))))
 
 ;; DFS with explicit stack
-(let (stack)
-  (defun stack-reset ()
-    (setf stack nil))
-  (defun stack-get ()
-    stack)
-  (defun stack-pop ()
-    (pop stack))
-  (defun stack-push(node)
-    (push node stack)))
+(defun make-stack (&optional stack)
+  #'(lambda (cmd &optional element)
+      (ecase cmd
+	(:test (endp stack))
+	(:push (push element stack))
+	(:pop (pop stack))
+	(:get stack))))
+
+(defun stack-empty-p (stack)
+  (funcall stack :test))
+
+(defun stack-push (stack element)
+  (funcall stack :push element))
+
+(defun stack-pop (stack)
+  (funcall stack :pop))
+
+(defun stack-get (stack)
+  (funcall stack :get))
 
 (defun get-unvisited-adj (node)
   (find-if-not #'node-visited (node-adj-nodes node)))
 
 (defun edf-explore-from-node (node &key (pre-visit #'visit-node)
-					   (post-visit #'identity))
-  (stack-reset)
-  (stack-push node)
-  (visit-node node)
-  (loop while (stack-get)
-     do (let ((unvisited-adj (get-unvisited-adj node)))
-	  (if unvisited-adj
-	      (progn (stack-push node)
-		     (funcall pre-visit unvisited-adj)
-		     (stack-push unvisited-adj))
-	      (funcall post-visit node)))))
+				     (post-visit #'identity))
+  (let ((stack (make-stack)))
+    (stack-push stack node)
+    (funcall pre-visit node)
+    (loop until (stack-empty-p stack)
+       do (let* ((node (stack-pop stack))
+		 (unvisited-adj (get-unvisited-adj node)))
+	    (if unvisited-adj
+		(progn (stack-push stack node)
+		       (funcall pre-visit unvisited-adj)
+		       (stack-push stack unvisited-adj))
+		(funcall post-visit node))))))
 
 ;; adjacency
 (defun is-adjacent-to (node1 node2)
@@ -202,21 +221,13 @@ adjacent to it."
 					(graph-nodes graph) max-ccid)
 				       connected-components))))
 
-(let ((explore-calls 0))
-  (defun reset-calls ()
-    (setf explore-calls 0))
-  (defun call-explore ()
-    (incf explore-calls))
-  (defun get-call-number()
-    explore-calls)) 
-
 (defun connected-components (graph)
   "assign ccids to each node in graph."
   (let ((explore-calls 0))
     (unvisit-nodes graph) ;i don't seem able to reuse df-explore here
     (dolist (node (graph-nodes graph))
       (unless (node-visited node)
-	(df-explore-from-node graph node :pre-visit
+	(df-explore-from-node node :pre-visit
 			      (lambda (node)
 				(set-connected-component-and-visit
 				 node explore-calls)))
@@ -224,16 +235,32 @@ adjacent to it."
   (show-connected-components graph (1- explore-calls))))
 
 ;; dags
-(defvar *clock* 1)
+(defun make-counter (count &optional end)
+  #'(lambda (cmd)
+      (ecase cmd
+        (:test (and (numberp end) (> count end)))
+        (:get count)
+        (:next (prog1 count
+                    (unless (and (numberp end) (> count end))
+                      (incf count)))))))
+;; adapted from https://web.archive.org/web/20110720015815/
+;; https://www.cs.northwestern.edu/academics/courses/325/readings/graham/generators.html
 
-(defun previsit (node)
-  (setf (node-pre node) *clock*)
-  (incf *clock*)
+(defun get-count (counter)
+  (funcall counter :get))
+
+(defun incf-count (counter)
+  (funcall counter :next))
+
+(defun empty-counter-p (counter)
+  (funcall counter :test))
+
+(defun previsit (node counter)
+  (setf (node-pre node) (incf-count counter))
   (visit-node node))
 
-(defun postvisit (node)
-  (setf (node-post node) *clock*)
-  (incf *clock*))
+(defun postvisit (node counter)
+  (setf (node-post node) (incf-count counter)))
 
 (defun reset-node-pre-post (node)
   (setf (node-pre node) nil)
@@ -252,12 +279,15 @@ adjacent to it."
 					 (node-post node))
 			      pre-post-list)))))
 
-(defun visit-nodes (graph)
+(defun pre-post-visit-nodes (graph &key (explore-fn
+					 #'df-explore-from-node))
   "mark pre and post numbers in df exploration."
-  (setf *clock* 1)
-  (reset-nodes-pre-post graph)
-  (df-explore graph :pre-visit #'previsit :post-visit #'postvisit)
-  (show-pre-post (graph-nodes graph)))
+  (let ((counter (make-counter 0)))
+    (reset-nodes-pre-post graph)
+    (df-explore graph :explore-fn explore-fn
+		:pre-visit (lambda (node) (previsit node counter))
+		:post-visit (lambda (node) (postvisit node counter)))
+  (show-pre-post (graph-nodes graph))))
 
 (defun back-edge? (node adj)
   (let ((pre-node (node-pre node))
@@ -270,17 +300,21 @@ adjacent to it."
 (defun any-back-edges? (graph)
   (let ((nodes (graph-nodes graph)))
     (dolist (node nodes)
-      (dolist (adj (node-adj-labels node))
-	(when (back-edge? node (get-node graph adj))
-	  (return-from any-back-edges? t))))))
+      (dolist (adj (node-adj-nodes node))
+	(when (back-edge? node adj)
+	  (return-from any-back-edges? (list node adj)))))))
 
 (defun is-dag? (graph)
-  (visit-nodes graph)
+  (pre-post-visit-nodes graph)
   (not (any-back-edges? graph)))
 
-(defun linearize-dag (graph)
-  (visit-nodes graph)
+(defun linearize-visited-dag (graph)
   (sort (graph-nodes graph) #'> :key #'node-post))
+
+(defun linearize-dag (graph)
+  (pre-post-visit-nodes graph)
+  (when (is-dag? graph)
+    (linearize-visited-dag graph)))
 
 ;; tests
 (defun all-visited? (graph)
@@ -299,5 +333,8 @@ adjacent to it."
 (directedp ug) ; nil
 (directedp dg) ; t
 (connected-components ug) ; ((#N(E) #N(D) #N(C) #N(B) #N(A)) (#N(G) #N(F)))
-(is-dag? dg) ; t
+(pre-post-visit-nodes ug)
+(pre-post-visit-nodes ug :explore-fn #'edf-explore-from-node)
+(any-back-edges? ug) ; (#n.B #n.D)
+(is-dag? dag) ; t
 (is-dag? ug) ; nil
