@@ -17,6 +17,16 @@
 				       (e)
 				       (f))))
 
+(defparameter *dag2* (copy-tree '((a c d)
+                                  (b d e)
+                                  (c)
+                                  (d f g)
+                                  (e)
+                                  (f)
+                                  (g i)
+                                  (h i)
+                                  (i))))
+
 (defparameter *undirected-graph* (copy-tree '((a b c)
 					      (b a d e)
 					      (c a d)
@@ -41,12 +51,6 @@ property."
   (pre nil)
   (post nil))
 
-(defstruct (graph (:print-function
-		   (lambda (graph stream k)
-		     (identity k)
-		     (format stream "#g(~{~A~^ ~})" (graph-nodes graph)))))
-  (nodes nil))
-
 ;; read functions
 (defun read-node (node-list)
   "get unique nodes in graph. in a graph-list, there is one sub-list
@@ -59,8 +63,8 @@ adjacent to it."
   (mapcar #'read-node graph-list))
 
 (defun get-node (graph node-label)
-  (find node-label (graph-nodes graph)
-	:key (lambda (node) (node-label node))))
+  (find node-label graph :key (lambda (node)
+                                (node-label node))))
 
 (defun add-adj-nodes (graph node-list)
   (let* ((node-label (first node-list))
@@ -70,20 +74,22 @@ adjacent to it."
       (push (get-node graph adj-label) (node-adj-nodes node)))))
 
 (defun add-neighbours (graph graph-list)
-  (mapcar (lambda (node-list) (add-adj-nodes graph node-list))
+  (mapcar (lambda (node-list)
+            (add-adj-nodes graph node-list))
 	  graph-list))
 
 (defun read-graph (graph-list)
   "read graph-symbol and create the graph and node structs referenced
   in it."
   (let* ((nodes (make-nodes graph-list))
-	(graph (make-graph :nodes nodes)))
+         (graph nodes))
     (add-neighbours graph graph-list)
     graph))
 
 ;; init test graphs
 (defvar dg (read-graph *directed-graph*))
 (defvar dag (read-graph *dag-graph*))
+(defvar dag2 (read-graph *dag2*))
 (defvar ug (read-graph *undirected-graph*))
 
 ;; utility functions
@@ -92,10 +98,10 @@ adjacent to it."
       (cons element sequence)
       sequence))
 
-(defun nodefy (node-label graph)
-  (if (node-p node-label)
-      node-label
-      (get-node graph node-label)))
+(defun factorial (number &optional (factorial 1))
+  (if (= number 1)
+      factorial
+      (factorial (1- number) (* number factorial))))
 
 ;; DFS
 (defun visit-node (node)
@@ -118,14 +124,14 @@ adjacent to it."
 			:post-visit post-visit))
 
 (defun unvisit-nodes(graph)
-  (dolist (node (graph-nodes graph))
+  (dolist (node graph)
     (setf (node-visited node) nil)))
 
 (defun df-explore (graph &key (explore-fn #'df-explore-from-node)
 			   (pre-visit #'visit-node)
 			   (post-visit #'identity))
   (unvisit-nodes graph)
-  (dolist (node (graph-nodes graph))
+  (dolist (node graph)
     (unless (node-visited node)
       (funcall explore-fn node :pre-visit pre-visit
 	       :post-visit post-visit))))
@@ -188,7 +194,7 @@ adjacent to it."
 ;;does a lot of duplicate work
   (some #'null (mapcar (lambda (node)
 			   (vertices-reciprocal-p node))
-			 (graph-nodes graph))))
+			 graph)))
 
 ;; connected components
 (defun set-connected-component (node component-id)
@@ -201,14 +207,14 @@ adjacent to it."
 (defun component-is (node ccid)
   (= (node-connected-component node) ccid))
 
-(defun gather-component (graph-nodes ccid &optional (cc nil))
+(defun gather-component (graph ccid &optional (cc nil))
   "get all nodes which are part of connected component ccid."
-  (if (endp graph-nodes)
+  (if (endp graph)
       cc
-      (gather-component (rest graph-nodes) ccid
+      (gather-component (rest graph) ccid
 			(cons-if (lambda (node)
 				   (component-is node ccid))
-				 (first graph-nodes) cc))))
+				 (first graph) cc))))
 
 (defun show-connected-components (graph
 				  max-ccid
@@ -217,21 +223,21 @@ adjacent to it."
       connected-components
       (show-connected-components graph (1- max-ccid)
 				 (cons (gather-component
-					(graph-nodes graph) max-ccid)
+					graph max-ccid)
 				       connected-components))))
 
 (defun connected-components (graph)
   "assign ccids to each node in graph."
   (let ((explore-calls 0))
     (unvisit-nodes graph) ;i don't seem able to reuse df-explore here
-    (dolist (node (graph-nodes graph))
+    (dolist (node graph)
       (unless (node-visited node)
 	(df-explore-from-node node :pre-visit
 			      (lambda (node)
 				(set-connected-component-and-visit
 				 node explore-calls)))
 	(incf explore-calls)))
-  (show-connected-components graph (1- explore-calls))))
+    (show-connected-components graph (1- explore-calls))))
 
 ;; dags
 (defun make-counter (count &optional end)
@@ -266,14 +272,14 @@ adjacent to it."
   (setf (node-post node) nil))
 
 (defun reset-nodes-pre-post (graph)
-  (dolist (node (graph-nodes graph))
+  (dolist (node graph)
     (reset-node-pre-post node)))
 
-(defun show-pre-post (graph-nodes &optional (pre-post-list nil))
-  (if (endp graph-nodes)
+(defun show-pre-post (graph &optional (pre-post-list nil))
+  (if (endp graph)
       pre-post-list
-      (let ((node (first graph-nodes)))
-	(show-pre-post (rest graph-nodes)
+      (let ((node (first graph)))
+	(show-pre-post (rest graph)
 		       (acons node (list (node-pre node)
 					 (node-post node))
 			      pre-post-list)))))
@@ -286,7 +292,7 @@ adjacent to it."
     (df-explore graph :explore-fn explore-fn
 		:pre-visit (lambda (node) (previsit node counter))
 		:post-visit (lambda (node) (postvisit node counter)))
-  (show-pre-post (graph-nodes graph))))
+  (show-pre-post graph)))
 
 (defun back-edge? (node adj)
   (let ((pre-node (node-pre node))
@@ -297,7 +303,7 @@ adjacent to it."
 	  t)))
 
 (defun any-back-edges? (graph)
-  (let ((nodes (graph-nodes graph)))
+  (let ((nodes graph))
     (dolist (node nodes)
       (dolist (adj (node-adj-nodes node))
 	(when (back-edge? node adj)
@@ -307,21 +313,51 @@ adjacent to it."
   (pre-post-visit-nodes graph)
   (not (any-back-edges? graph)))
 
+;; linearization
+
 (defun linearize-visited-dag (graph)
-  (sort (graph-nodes graph) #'> :key #'node-post))
+  (let ((graph-copy (copy-seq graph)))
+    (sort graph-copy #'> :key #'node-post)))
 
 (defun linearize-dag (graph)
-  (pre-post-visit-nodes graph)
   (when (is-dag? graph)
     (linearize-visited-dag graph)))
 
-;; possible linearizations https://stackoverflow.com/questions/18675913/lisp-how-to-get-all-possible-combinations-of-the-elements-from-lists-contained
+(defun find-sources (graph &key sources not-sources)
+  (let ((node (first graph)))
+    (if (or (find node not-sources) (endp graph))
+        sources
+        (find-sources (rest graph) :sources (cons node sources)
+                      :not-sources (node-adj-nodes node)))))
+
+(defun aux-rank-nodes (linear-dag &optional ranked-dag)
+  (if (endp linear-dag)
+      ranked-dag
+      (let* ((sources (find-sources linear-dag))
+             (nr-sources (length sources)))
+        (aux-rank-nodes (subseq linear-dag nr-sources)
+                        (cons sources ranked-dag)))))
+
+(defun rank-dag (dag)
+  "return reverse transitive reduction of dag, that is,dag's nodes
+ranked by 'sourceness', i.e., list of lists where each sublist is
+composed of nodes of same rank (rank of a node is how many nodes must
+be removed from graph for it to be a source)."
+  (let ((linear-dag (linearize-dag dag)))
+    (aux-rank-nodes linear-dag)))
+
+(defun possible-linearizations (dag)
+  "return number of possible linearizations."
+  (let ((ranked-dag (rank-dag dag)))
+    (reduce #'* (mapcar (lambda (same-rank-nodes)
+                          (factorial (length same-rank-nodes)))
+                        ranked-dag))))
 
 ;; tests
 (defun all-visited? (graph)
   (notany #'null (mapcar (lambda (node)
 			   (node-visited node))
-			 (graph-nodes graph))))
+			 graph)))
 
 (get-unvisited-adj (get-node ug 'e)) ; B
 (is-adjacent-to (get-node ug 'c) (get-node ug 'a)) ; t
@@ -339,3 +375,5 @@ adjacent to it."
 (any-back-edges? ug) ; (#n.B #n.D)
 (is-dag? dag) ; t
 (is-dag? ug) ; nil
+(rank-dag dag) ; ((#n.F #n.E) (#n.C) (#n.D #n.A) (#n.B))
+(possible-linearizations dag) ; 4
