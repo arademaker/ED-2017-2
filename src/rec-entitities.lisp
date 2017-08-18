@@ -8,6 +8,20 @@
 (compile-file #p"trie.lisp")
 (load #p"trie.fasl")
 
+#|;;not used
+(defun make-entities(&optional entities)
+  #'(lambda (cmd &optional entity)
+      (ecase cmd
+        (:push (push entity entities))
+        (:get entities))))
+
+(defun entities-push (entities entity)
+  (funcall entities :push entity))
+
+(defun entities-get (entities)
+  (funcall entities :get))
+|#
+
 (let (entities)
   (defun insert-entity (entity)
     (push entity entities))
@@ -16,28 +30,35 @@
   (defun reset-entities ()
     (setf entities nil)))
 
+;; process entities: join names, add them to entities-found, do things
+;; to them
+
 (defun join-words (words &optional joined-words)
+;; equiv to (format nil "~{~A~^ ~}" words), but faster
   (if (endp words)
-      (subseq joined-words 1)
+      (subseq joined-words 1) ;to remove first space
       (join-words (rest words) (concatenate 'string (list #\space)
 					      (first words)
 					      joined-words))))
 
 (defun process-entity (entity)
   (insert-entity (join-words (mapcar (lambda (node-token)
-	    (get-token-form (rest node-token)))
-	  entity))))
+                                       (get-token-form
+                                        (rest node-token)))
+                                     entity))))
 
 (defun unwind-entity (entity)
   (when entity
     (if (trie-is-leaf? (caar entity))
 	(process-entity entity))
-	(unwind-entity (rest entity))))
+    (unwind-entity (rest entity))))
 
 (defun get-token-form (token)
-  (if (typep token 'cl-conllu:token)
-      (cl-conllu:token-form token)
-      (cl-conllu:mtoken-form token)))
+  (etypecase token
+    (cl-conllu:token (cl-conllu:token-form token))
+    (cl-conllu:mtoken (cl-conllu:mtoken-form token))))
+
+;; recognize entities
 
 (defun token-in-trie? (trie token)
   "checks if token is in trie, if it is, sees if it is followed by a
@@ -62,9 +83,9 @@ in trie returns nil"
 	  ((and (null trie-node) entity)
 	   (values token-list entity))
 ;; not (rest token-list) to give tk a fresh chance, but will only give
-;; this chance to last tk. (think of searching for joão almeida de
+;; this chance to the last tk. (think of searching for joão almeida de
 ;; castro when only joão almeida and joão almeida de silva are ents:
-;; only castro will be reconsidered). is that a problem?
+;; only castro will be reconsidered, not 'de'). is that a problem?
 	  (trie-node
 	   (aux-recognize-ents-in-tokens trie-node
 					 (rest token-list)
@@ -77,6 +98,8 @@ in trie returns nil"
 	(aux-recognize-ents-in-tokens trie token-list)
       (unwind-entity entity)
       (recognize-ents-in-tokens trie rest-token-list))))
+
+;; prepare input: get tokens and mtokens from sentence
 
 (defun construct-token-list-aux (tokens begin end
 				 &key token-list mtoken)
@@ -118,7 +141,9 @@ mtokens: (pt em o governo) -> (pt no governo)"
 (defun cons-tokens-from-sentence (sentence)
   (construct-token-list (cl-conllu:sentence-tokens sentence)
 			(cl-conllu:sentence-mtokens sentence)))
-    
+
+;; entry points
+
 (defun recognize-ents-in-sentence (trie sentence)
   (recognize-ents-in-tokens trie (cons-tokens-from-sentence sentence)))
 
@@ -126,6 +151,8 @@ mtokens: (pt em o governo) -> (pt no governo)"
   (when sentences
     (recognize-ents-in-sentence trie (first sentences))
     (recognize-ents-in-sentences trie (rest sentences))))
+
+;; count entities (remove is for better performance)
 
 (defun count-and-remove (entity entities-found
 			 &key (predicate #'string=)
