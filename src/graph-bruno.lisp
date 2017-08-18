@@ -209,7 +209,6 @@ adjacent to it."
 			(cons-if (lambda (node)
 				   (component-is node ccid))
 				 (first graph-nodes) cc))))
-    
 
 (defun show-connected-components (graph
 				  max-ccid
@@ -316,13 +315,15 @@ adjacent to it."
   (when (is-dag? graph)
     (linearize-visited-dag graph)))
 
+;; possible linearizations https://stackoverflow.com/questions/18675913/lisp-how-to-get-all-possible-combinations-of-the-elements-from-lists-contained
+
 ;; tests
 (defun all-visited? (graph)
   (notany #'null (mapcar (lambda (node)
 			   (node-visited node))
 			 (graph-nodes graph))))
 
-(get-unvisited-adj ug (get-node ug 'e)) ; B
+(get-unvisited-adj (get-node ug 'e)) ; B
 (is-adjacent-to (get-node ug 'c) (get-node ug 'a)) ; t
 (is-adjacent-to (get-node ug 'a) (get-node ug 'c)) ; t
 (is-adjacent-to (get-node dg 'c) (get-node dg 'd)) ; t
@@ -332,7 +333,7 @@ adjacent to it."
 (vertices-reciprocal-p (get-node ug 'A)) ; t
 (directedp ug) ; nil
 (directedp dg) ; t
-(connected-components ug) ; ((#N(E) #N(D) #N(C) #N(B) #N(A)) (#N(G) #N(F)))
+(connected-components ug) ; ((#N(E) ...  #N(A)) (#N(G) #N(F)))
 (pre-post-visit-nodes ug)
 (pre-post-visit-nodes ug :explore-fn #'edf-explore-from-node)
 (any-back-edges? ug) ; (#n.B #n.D)
