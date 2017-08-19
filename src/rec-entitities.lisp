@@ -164,20 +164,22 @@ mtokens: (pt em o governo) -> (pt no governo)"
 				   :entity-count new-entity-count))))
 
 
-;; tests
-(join-words '("silva" "da" "lula")) ; "lula da silva"
-(count-and-remove 1 (list 1 52 26 73 1 0) :predicate #'=) ; 2 (0 73 26 52)
-(count-and-remove -88 (list 1 52 26 73 1 0) :predicate #'=) ; 0 (0 1...)
-(count-and-remove-entity 1 (list 1 284 1 393 0 -1)
-			 nil #'=) ; ((1 . 2)) (-1 0 393 284)
-(count-and-remove-entities (list 1 -1)
-			   (list 1 2 3 4 -1 1 8 -1 -1 3)
-			   :predicate #'=) ;((-1 . 3) ((1 . 2))
-(let* ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
-       (ents (read-file "~/git/ed-2017-2/src/entities.txt"))
-       (trie (start-trie ents)))
-  (reset-entities)
-  (recognize-ents-in-sentences trie sents)
-  (show-entities)
-  (count-and-remove-entities ents (show-entities)))
-;; (("Lula" . 1) ("Fernando Henrique Cardoso" . 1) ("PT" . 4) ("secretaria municipal de zoologia" . 0))
+;; ;; tests
+;; (join-words '("silva" "da" "lula")) ; "lula da silva"
+;; (count-and-remove 1 (list 1 52 26 73 1 0) :predicate #'=) ; 2 (0 73 26 52)
+;; (count-and-remove -88 (list 1 52 26 73 1 0) :predicate #'=) ; 0 (0 1...)
+;; (count-and-remove-entity 1 (list 1 284 1 393 0 -1)
+;; 			 nil #'=) ; ((1 . 2)) (-1 0 393 284)
+;; (count-and-remove-entities (list 1 -1)
+;; 			   (list 1 2 3 4 -1 1 8 -1 -1 3)
+;; 			   :predicate #'=) ;((-1 . 3) ((1 . 2))
+;; (let* ((sents (cl-conllu:read-conllu #p"~/work/cpdoc/dhbb-nlp/udp/"))
+;;        (ents (read-file "/Users/arademaker/work/cpdoc/dhbb/dic/pessoa-individuo.txt"))
+;;        (trie (start-trie ents)))
+;;   (reset-entities)
+;;   (recognize-ents-in-sentences trie sents)
+;;   (show-entities)
+;;   (count-and-remove-entities ents (show-entities)))
+
+
+

@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 
 class BuildTrie():
@@ -34,11 +35,11 @@ class BuildTrie():
                 trie_dict = self.build_trie(trie_dict, name_list, 0)
         return trie_dict
 
-    def write_file(self):
-        write_path = os.path.join(os.path.dirname(self.file_path), 'trie_result.txt')
-        with open(write_path, 'w') as file:
-            file.write(json.dumps(self.get_trie()))
+    def write_file(self,filename):
+        with open(filename, 'w') as file:
+            file.write(json.dumps(self.get_trie(), indent=4))
 
 if __name__ == '__main__':
-    file_path = input('Entre com o path do arquivo com os nomes: ')
-    BuildTrie(file_path).write_file()
+    filename = sys.argv[1]
+    output = sys.argv[2]
+    BuildTrie(filename).write_file(output)
