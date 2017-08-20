@@ -129,10 +129,12 @@ adjacent to it."
 
 (defun df-explore (graph &key (explore-fn #'df-explore-from-node)
 			   (pre-visit #'visit-node)
-			   (post-visit #'identity))
+			   (post-visit #'identity)
+                           (source-fn #'identity))
   (unvisit-nodes graph)
   (dolist (node graph)
     (unless (node-visited node)
+      (funcall source-fn node)
       (funcall explore-fn node :pre-visit pre-visit
 	       :post-visit post-visit))))
 
@@ -196,6 +198,27 @@ adjacent to it."
 			   (vertices-reciprocal-p node))
 			 graph)))
 
+;; counter for ccid's and dag linearization
+(defun make-counter (count &optional end)
+  #'(lambda (cmd)
+      (ecase cmd
+        (:test (and (numberp end) (> count end)))
+        (:get count)
+        (:next (prog1 count
+                    (unless (and (numberp end) (> count end))
+                      (incf count)))))))
+;; adapted from https://web.archive.org/web/20110720015815/
+;; https://www.cs.northwestern.edu/academics/courses/325/readings/graham/generators.html
+
+(defun get-count (counter)
+  (funcall counter :get))
+
+(defun incf-count (counter)
+  (funcall counter :next))
+
+(defun empty-counter-p (counter)
+  (funcall counter :test))
+
 ;; connected components
 (defun set-connected-component (node component-id)
   (setf (node-connected-component node) component-id))
@@ -227,39 +250,15 @@ adjacent to it."
 				       connected-components))))
 
 (defun connected-components (graph)
-  "assign ccids to each node in graph."
-  (let ((explore-calls 0))
-    (unvisit-nodes graph) ;i don't seem able to reuse df-explore here
-    (dolist (node graph)
-      (unless (node-visited node)
-	(df-explore-from-node node :pre-visit
-			      (lambda (node)
-				(set-connected-component-and-visit
-				 node explore-calls)))
-	(incf explore-calls)))
-    (show-connected-components graph (1- explore-calls))))
+  (let ((counter (make-counter -1))) ; because it increments before
+    (df-explore graph :pre-visit (lambda (node)
+                                   (set-connected-component-and-visit
+                                    node (get-count counter)))
+                :source-fn (lambda (node) (identity node)
+                                   (incf-count counter)))
+    (show-connected-components graph (get-count counter))))
 
 ;; dags
-(defun make-counter (count &optional end)
-  #'(lambda (cmd)
-      (ecase cmd
-        (:test (and (numberp end) (> count end)))
-        (:get count)
-        (:next (prog1 count
-                    (unless (and (numberp end) (> count end))
-                      (incf count)))))))
-;; adapted from https://web.archive.org/web/20110720015815/
-;; https://www.cs.northwestern.edu/academics/courses/325/readings/graham/generators.html
-
-(defun get-count (counter)
-  (funcall counter :get))
-
-(defun incf-count (counter)
-  (funcall counter :next))
-
-(defun empty-counter-p (counter)
-  (funcall counter :test))
-
 (defun previsit (node counter)
   (setf (node-pre node) (incf-count counter))
   (visit-node node))
