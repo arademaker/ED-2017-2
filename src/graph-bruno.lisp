@@ -7,8 +7,25 @@
 					    (b a d)
 					    (c e f)
 					    (d c)
-					    (e)
+					    (e f)
 					    (f))))
+
+(defparameter *dag-graph* (copy-tree '((a c)
+				       (b a d)
+				       (c e f)
+				       (d c)
+				       (e)
+				       (f))))
+
+(defparameter *dag2* (copy-tree '((a c d)
+                                  (b d e)
+                                  (c)
+                                  (d f g)
+                                  (e)
+                                  (f)
+                                  (g i)
+                                  (h i)
+                                  (i))))
 
 (defparameter *undirected-graph* (copy-tree '((a b c)
 					      (b a d e)
@@ -28,105 +45,156 @@
   "structure nodes: label, its neighbours labels, and its visited
 property."
   (label)
-  (adj-labels nil)
+  (adj-nodes nil)
   (visited nil)
   (connected-component nil)
   (pre nil)
   (post nil))
-
-(defstruct (graph (:print-function
-		   (lambda (graph stream k)
-		     (identity k)
-		     (format stream "#g(~{~A~^ ~})" (graph-nodes graph)))))
-  (nodes nil))
 
 ;; read functions
 (defun read-node (node-list)
   "get unique nodes in graph. in a graph-list, there is one sub-list
 for each node, and its car is the node, and its cdr are the nodes
 adjacent to it."
-  (let ((node-label (first node-list))
-	(adj-labels (rest node-list)))
-    (make-node :label node-label :adj-labels adj-labels)))
+  (let ((node-label (first node-list)))
+    (make-node :label node-label)))
 
 (defun make-nodes (graph-list)
   (mapcar #'read-node graph-list))
 
+(defun get-node (graph node-label)
+  (find node-label graph :key (lambda (node)
+                                (node-label node))))
+
+(defun add-adj-nodes (graph node-list)
+  (let* ((node-label (first node-list))
+	 (node (get-node graph node-label))
+	 (adj-labels (rest node-list)))
+    (dolist (adj-label adj-labels)
+      (push (get-node graph adj-label) (node-adj-nodes node)))))
+
+(defun add-neighbours (graph graph-list)
+  (mapcar (lambda (node-list)
+            (add-adj-nodes graph node-list))
+	  graph-list))
+
 (defun read-graph (graph-list)
   "read graph-symbol and create the graph and node structs referenced
   in it."
-  (let ((nodes (make-nodes graph-list)))
-    (make-graph :nodes nodes)))
+  (let* ((nodes (make-nodes graph-list))
+         (graph nodes))
+    (add-neighbours graph graph-list)
+    graph))
 
 ;; init test graphs
-(defparameter dg (read-graph *directed-graph*))
+(defvar dg (read-graph *directed-graph*))
+(defvar dag (read-graph *dag-graph*))
+(defvar dag2 (read-graph *dag2*))
 (defvar ug (read-graph *undirected-graph*))
 
 ;; utility functions
-(defun get-node (graph node-label)
-  (find node-label (graph-nodes graph)
-	:key (lambda (node) (node-label node))))
-
-(defun nodefy (node-label graph)
-  (if (node-p node-label)
-      node-label
-      (get-node graph node-label)))
-
-(defun cons-if (element sequence predicate)
+(defun cons-if (predicate element sequence)
   (if (funcall predicate element)
       (cons element sequence)
       sequence))
+
+(defun factorial (number &optional (factorial 1))
+  (if (= number 1)
+      factorial
+      (factorial (1- number) (* number factorial))))
 
 ;; DFS
 (defun visit-node (node)
   (setf (node-visited node) t))
 
-(defun df-explore-from-node (graph node &optional
-					  (pre-visit #'visit-node)
+(defun df-explore-from-node (node &key (pre-visit #'visit-node)
 					  (post-visit #'identity))
-  "depth-first exploration from a node."
   (funcall pre-visit node)
-  (dolist (adj-label (node-adj-labels node))
-    (let ((adj-node (get-node graph adj-label)))
-      (when (null (node-visited adj-node))
-	(df-explore-from-node graph adj-node pre-visit post-visit))))
+  (dolist (adj-node (node-adj-nodes node))
+    (unless (node-visited adj-node)
+      (df-explore-from-node adj-node :pre-visit pre-visit
+			    :post-visit post-visit)))
   (funcall post-visit node))
 
 (defun df-explore-from-label (graph node-label
-			      &optional (pre-visit #'visit-node)
+			      &key (pre-visit #'visit-node)
 				(post-visit #'identity))
   (df-explore-from-node (get-node graph node-label)
-			pre-visit post-visit))
+			:pre-visit pre-visit
+			:post-visit post-visit))
 
 (defun unvisit-nodes(graph)
-  (dolist (node (graph-nodes graph))
+  (dolist (node graph)
     (setf (node-visited node) nil)))
 
-(defun df-explore (graph &optional (pre-visit #'visit-node)
+(defun df-explore (graph &key (explore-fn #'df-explore-from-node)
+			   (pre-visit #'visit-node)
 			   (post-visit #'identity))
-  "df explore the graph."
   (unvisit-nodes graph)
-  (dolist (node (graph-nodes graph))
-    (when (null (node-visited node))
-      (df-explore-from-node graph node pre-visit post-visit))))
+  (dolist (node graph)
+    (unless (node-visited node)
+      (funcall explore-fn node :pre-visit pre-visit
+	       :post-visit post-visit))))
 
-;;adjacency
-(defun is-adjacent-node (node adj)
-  "check if adj is adjacent to node."
-  (if (member (node-label adj) (node-adj-labels node))
+;; DFS with explicit stack
+(defun make-stack (&optional stack)
+  #'(lambda (cmd &optional element)
+      (ecase cmd
+	(:test (endp stack))
+	(:push (push element stack))
+	(:pop (pop stack))
+	(:get stack))))
+
+(defun stack-empty-p (stack)
+  (funcall stack :test))
+
+(defun stack-push (stack element)
+  (funcall stack :push element))
+
+(defun stack-pop (stack)
+  (funcall stack :pop))
+
+(defun stack-get (stack)
+  (funcall stack :get))
+
+(defun get-unvisited-adj (node)
+  (find-if-not #'node-visited (node-adj-nodes node)))
+
+(defun edf-explore-from-node (node &key (pre-visit #'visit-node)
+				     (post-visit #'identity))
+  (let ((stack (make-stack)))
+    (stack-push stack node)
+    (funcall pre-visit node)
+    (loop until (stack-empty-p stack)
+       do (let* ((node (stack-pop stack))
+		 (unvisited-adj (get-unvisited-adj node)))
+	    (if unvisited-adj
+		(progn (stack-push stack node)
+		       (funcall pre-visit unvisited-adj)
+		       (stack-push stack unvisited-adj))
+		(funcall post-visit node))))))
+
+;; adjacency
+(defun is-adjacent-to (node1 node2)
+  "can I go from node2 to node1?"
+  (if (member node1 (node-adj-nodes node2))
       t
       nil))
 
-(defun vertices-reciprocal-p (node graph) ;does a lot of duplicate work
+(defun reciprocal-edges (node)
+  (mapcar (lambda (adj-node)
+	    (is-adjacent-to node adj-node))
+	  (node-adj-nodes node)))
+
+(defun vertices-reciprocal-p (node)
   "check if node is adjacent to all nodes adj to node."
-  (notany #'null (mapcar (lambda (adj-label)
-			   (is-adjacent-node (get-node graph adj-label) node))
-			 (node-adj-labels node))))
+  (notany #'null (reciprocal-edges node)))
 
 (defun directedp (graph)
+;;does a lot of duplicate work
   (some #'null (mapcar (lambda (node)
-			   (vertices-reciprocal-p node graph))
-			 (graph-nodes graph))))
+			   (vertices-reciprocal-p node))
+			 graph)))
 
 ;; connected components
 (defun set-connected-component (node component-id)
@@ -136,62 +204,95 @@ adjacent to it."
   (set-connected-component node component-id)
   (visit-node node))
 
-(defun gather-component (graph-nodes ccid &optional (cc nil))
-  "get all nodes which are part of connected component ccid."
-  (if (endp graph-nodes)
-      cc
-      (gather-component (rest graph-nodes) ccid (cons-if (first graph-nodes) cc (lambda (node) (= (node-connected-component node) ccid))))))
-    
+(defun component-is (node ccid)
+  (= (node-connected-component node) ccid))
 
-(defun show-connected-components (graph ccid &optional (connected-components nil))
-  (if (< ccid 0)
+(defun gather-component (graph ccid &optional (cc nil))
+  "get all nodes which are part of connected component ccid."
+  (if (endp graph)
+      cc
+      (gather-component (rest graph) ccid
+			(cons-if (lambda (node)
+				   (component-is node ccid))
+				 (first graph) cc))))
+
+(defun show-connected-components (graph
+				  max-ccid
+				  &optional (connected-components nil))
+  (if (< max-ccid 0)
       connected-components
-      (show-connected-components graph (1- ccid) (cons (gather-component (graph-nodes graph) ccid) connected-components))))
-  
+      (show-connected-components graph (1- max-ccid)
+				 (cons (gather-component
+					graph max-ccid)
+				       connected-components))))
 
 (defun connected-components (graph)
   "assign ccids to each node in graph."
   (let ((explore-calls 0))
     (unvisit-nodes graph) ;i don't seem able to reuse df-explore here
-    (dolist (node (graph-nodes graph))
-      (when (null (node-visited node))
-	(df-explore-from-node graph node
-			      (lambda (node) (set-connected-component-and-visit node explore-calls)))
+    (dolist (node graph)
+      (unless (node-visited node)
+	(df-explore-from-node node :pre-visit
+			      (lambda (node)
+				(set-connected-component-and-visit
+				 node explore-calls)))
 	(incf explore-calls)))
-  (show-connected-components graph (1- explore-calls))))
+    (show-connected-components graph (1- explore-calls))))
 
 ;; dags
-(defvar *clock* 1)
+(defun make-counter (count &optional end)
+  #'(lambda (cmd)
+      (ecase cmd
+        (:test (and (numberp end) (> count end)))
+        (:get count)
+        (:next (prog1 count
+                    (unless (and (numberp end) (> count end))
+                      (incf count)))))))
+;; adapted from https://web.archive.org/web/20110720015815/
+;; https://www.cs.northwestern.edu/academics/courses/325/readings/graham/generators.html
 
-(defun previsit (node)
-  (setf (node-pre node) *clock*)
-  (incf *clock*)
+(defun get-count (counter)
+  (funcall counter :get))
+
+(defun incf-count (counter)
+  (funcall counter :next))
+
+(defun empty-counter-p (counter)
+  (funcall counter :test))
+
+(defun previsit (node counter)
+  (setf (node-pre node) (incf-count counter))
   (visit-node node))
 
-(defun postvisit (node)
-  (setf (node-post node) *clock*)
-  (incf *clock*))
+(defun postvisit (node counter)
+  (setf (node-post node) (incf-count counter)))
 
 (defun reset-node-pre-post (node)
   (setf (node-pre node) nil)
   (setf (node-post node) nil))
 
 (defun reset-nodes-pre-post (graph)
-  (dolist (node (graph-nodes graph))
+  (dolist (node graph)
     (reset-node-pre-post node)))
 
-(defun show-pre-post (graph-nodes &optional (pre-post-list nil))
-  (if (endp graph-nodes)
+(defun show-pre-post (graph &optional (pre-post-list nil))
+  (if (endp graph)
       pre-post-list
-      (let ((node (first graph-nodes)))
-	(show-pre-post (rest graph-nodes) (acons node (list (node-pre node) (node-post node)) pre-post-list))))) 
+      (let ((node (first graph)))
+	(show-pre-post (rest graph)
+		       (acons node (list (node-pre node)
+					 (node-post node))
+			      pre-post-list)))))
 
-(defun visit-nodes (graph)
+(defun pre-post-visit-nodes (graph &key (explore-fn
+					 #'df-explore-from-node))
   "mark pre and post numbers in df exploration."
-  (setf *clock* 1)
-  (reset-nodes-pre-post graph)
-  (df-explore graph #'previsit #'postvisit)
-  (show-pre-post (graph-nodes graph)))
+  (let ((counter (make-counter 0)))
+    (reset-nodes-pre-post graph)
+    (df-explore graph :explore-fn explore-fn
+		:pre-visit (lambda (node) (previsit node counter))
+		:post-visit (lambda (node) (postvisit node counter)))
+  (show-pre-post graph)))
 
 (defun back-edge? (node adj)
   (let ((pre-node (node-pre node))
@@ -202,32 +303,77 @@ adjacent to it."
 	  t)))
 
 (defun any-back-edges? (graph)
-  (let ((nodes (graph-nodes graph)))
+  (let ((nodes graph))
     (dolist (node nodes)
-      (dolist (adj (node-adj-labels node))
-	(when (back-edge? node (get-node graph adj))
-	  (return-from any-back-edges? t))))))
+      (dolist (adj (node-adj-nodes node))
+	(when (back-edge? node adj)
+	  (return-from any-back-edges? (list node adj)))))))
 
 (defun is-dag? (graph)
-  (visit-nodes graph)
+  (pre-post-visit-nodes graph)
   (not (any-back-edges? graph)))
 
+;; linearization
+
+(defun linearize-visited-dag (graph)
+  (let ((graph-copy (copy-seq graph)))
+    (sort graph-copy #'> :key #'node-post)))
+
 (defun linearize-dag (graph)
-  (visit-nodes graph)
-  (sort (graph-nodes graph) #'> :key #'node-post))
+  (when (is-dag? graph)
+    (linearize-visited-dag graph)))
+
+(defun find-sources (graph &key sources not-sources)
+  (let ((node (first graph)))
+    (if (or (find node not-sources) (endp graph))
+        sources
+        (find-sources (rest graph) :sources (cons node sources)
+                      :not-sources (node-adj-nodes node)))))
+
+(defun aux-rank-nodes (linear-dag &optional ranked-dag)
+  (if (endp linear-dag)
+      ranked-dag
+      (let* ((sources (find-sources linear-dag))
+             (nr-sources (length sources)))
+        (aux-rank-nodes (subseq linear-dag nr-sources)
+                        (cons sources ranked-dag)))))
+
+(defun rank-dag (dag)
+  "return reverse transitive reduction of dag, that is,dag's nodes
+ranked by 'sourceness', i.e., list of lists where each sublist is
+composed of nodes of same rank (rank of a node is how many nodes must
+be removed from graph for it to be a source)."
+  (let ((linear-dag (linearize-dag dag)))
+    (aux-rank-nodes linear-dag)))
+
+(defun possible-linearizations (dag)
+  "return number of possible linearizations."
+  (let ((ranked-dag (rank-dag dag)))
+    (reduce #'* (mapcar (lambda (same-rank-nodes)
+                          (factorial (length same-rank-nodes)))
+                        ranked-dag))))
 
 ;; tests
-(is-adjacent-node (get-node dg 'a) (get-node dg 'c)) ; t
-(is-adjacent-node (get-node ug 'a) (get-node ug 'c)) ; t
-(is-adjacent-node (get-node dg 'c) (get-node dg 'd)) ; nil
-(is-adjacent-node (get-node ug 'a) (get-node ug 'b)) ; nil
-;(are-adjacent-label ug '(a c)) ; t
-;(are-adjacent-label ug '(b a d)) ; t
-;(are-adjacent-label ug '(b a c)) ; nil
-(vertices-reciprocal-p (get-node dg 'A) dg) ; nil
-(vertices-reciprocal-p (get-node ug 'A) ug) ; t
+(defun all-visited? (graph)
+  (notany #'null (mapcar (lambda (node)
+			   (node-visited node))
+			 graph)))
+
+(get-unvisited-adj (get-node ug 'e)) ; B
+(is-adjacent-to (get-node ug 'c) (get-node ug 'a)) ; t
+(is-adjacent-to (get-node ug 'a) (get-node ug 'c)) ; t
+(is-adjacent-to (get-node dg 'c) (get-node dg 'd)) ; t
+(is-adjacent-to (get-node dg 'd) (get-node dg 'c)) ; nil
+(is-adjacent-to (get-node ug 'a) (get-node ug 'f)) ; nil
+(vertices-reciprocal-p (get-node dg 'A)) ; nil
+(vertices-reciprocal-p (get-node ug 'A)) ; t
 (directedp ug) ; nil
 (directedp dg) ; t
-(connected-components ug) ; ((#N(E) #N(D) #N(C) #N(B) #N(A)) (#N(G) #N(F)))
-(is-dag? dg) ; t
+(connected-components ug) ; ((#N(E) ...  #N(A)) (#N(G) #N(F)))
+(pre-post-visit-nodes ug)
+(pre-post-visit-nodes ug :explore-fn #'edf-explore-from-node)
+(any-back-edges? ug) ; (#n.B #n.D)
+(is-dag? dag) ; t
 (is-dag? ug) ; nil
+(rank-dag dag) ; ((#n.F #n.E) (#n.C) (#n.D #n.A) (#n.B))
+(possible-linearizations dag) ; 4
