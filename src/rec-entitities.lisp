@@ -5,8 +5,8 @@
 ;; tá ok?
 
 (ql:quickload :cl-conllu)
-(compile-file #p"trie.lisp")
-(load #p"trie.fasl")
+(compile-file #p"~/git/ed-2017-2/src/trie.lisp")
+(load #p"~/git/ed-2017-2/src/trie.fasl")
 
 #|;;not used
 (defun make-entities(&optional entities)
@@ -41,6 +41,11 @@
 					      (first words)
 					      joined-words))))
 
+(defun get-token-form (token)
+  (etypecase token ; typecase or etypecase?
+    (cl-conllu:token (cl-conllu:token-form token))
+    (cl-conllu:mtoken (cl-conllu:mtoken-form token))))
+
 (defun process-entity (entity)
   (insert-entity (join-words (mapcar (lambda (node-token)
                                        (get-token-form
@@ -52,11 +57,6 @@
     (if (trie-is-leaf? (caar entity))
 	(process-entity entity))
     (unwind-entity (rest entity))))
-
-(defun get-token-form (token)
-  (etypecase token
-    (cl-conllu:token (cl-conllu:token-form token))
-    (cl-conllu:mtoken (cl-conllu:mtoken-form token))))
 
 ;; recognize entities
 
@@ -75,6 +75,8 @@ in trie returns nil"
 		(values trie-node token)))))))
 
 (defun aux-recognize-ents-in-tokens (trie token-list &optional entity)
+  (when (endp token-list)
+    (return-from aux-recognize-ents-in-tokens (values nil entity)))
   (multiple-value-bind (trie-node token)
       (token-in-trie? trie (first token-list))
     (cond ((and (null entity)
@@ -101,25 +103,25 @@ in trie returns nil"
 
 ;; prepare input: get tokens and mtokens from sentence
 
-(defun construct-token-list-aux (tokens begin end
+(defun aux-construct-token-list (tokens start end
 				 &key token-list mtoken)
-  (when (endp tokens) (return-from construct-token-list-aux
+  (when (endp tokens) (return-from aux-construct-token-list
 			(values nil token-list)))
 ;; because an mtoken can be the last one in a sentence.
   (let* ((token (first tokens))
 	(token-id (cl-conllu:token-id token))
 	(rest-tokens (rest tokens)))
-    (cond ((< token-id begin)
-	   (construct-token-list-aux rest-tokens begin end
+    (cond ((< token-id start)
+	   (aux-construct-token-list rest-tokens start end
 				     :token-list (cons token
 						       token-list)
 				     :mtoken mtoken))
-	  ((= token-id begin)
-	   (construct-token-list-aux rest-tokens begin end
+	  ((= token-id start)
+	   (aux-construct-token-list rest-tokens start end
 				     :token-list (cons mtoken
 						       token-list)))
-	  ((and (> token-id begin) (<= token-id end))
-	   (construct-token-list-aux rest-tokens begin end
+	  ((and (> token-id start) (<= token-id end))
+	   (aux-construct-token-list rest-tokens start end
 				     :token-list token-list))
 	  ((> token-id end)
 	   (values tokens token-list)))))
@@ -130,10 +132,10 @@ mtokens: (pt em o governo) -> (pt no governo)"
   (if (endp mtokens)
       (append (reverse token-list) tokens)
       (let* ((mtoken (first mtokens))
-	     (begin (cl-conllu:mtoken-start mtoken))
+	     (start (cl-conllu:mtoken-start mtoken))
 	     (end (cl-conllu:mtoken-end mtoken)))
 	(multiple-value-bind (rest-tokens result-token-list)
-	    (construct-token-list-aux tokens begin end :mtoken mtoken)
+	    (aux-construct-token-list tokens start end :mtoken mtoken)
 	  (construct-token-list rest-tokens (rest mtokens)
 				(append result-token-list
 					token-list))))))
@@ -145,7 +147,8 @@ mtokens: (pt em o governo) -> (pt no governo)"
 ;; entry points
 
 (defun recognize-ents-in-sentence (trie sentence)
-  (recognize-ents-in-tokens trie (cons-tokens-from-sentence sentence)))
+  (recognize-ents-in-tokens trie
+                            (cons-tokens-from-sentence sentence)))
 
 (defun recognize-ents-in-sentences (trie sentences)
   (when sentences
@@ -169,8 +172,9 @@ mtokens: (pt em o governo) -> (pt no governo)"
 	(count-and-remove entity rest-entities-found
 			  :predicate predicate
 			  :count count
-			  :filtered-entities (cons entity-found
-						   filtered-entities)))))
+			  :filtered-entities
+                          (cons entity-found
+                                filtered-entities)))))
 
 (defun count-and-remove-entity (entity entities-found
 				entity-count predicate)
@@ -205,6 +209,5 @@ mtokens: (pt em o governo) -> (pt no governo)"
        (trie (start-trie ents)))
   (reset-entities)
   (recognize-ents-in-sentences trie sents)
-  (show-entities)
   (count-and-remove-entities ents (show-entities)))
 ;; (("Lula" . 1) ("Fernando Henrique Cardoso" . 1) ("PT" . 4) ("secretaria municipal de zoologia" . 0))
