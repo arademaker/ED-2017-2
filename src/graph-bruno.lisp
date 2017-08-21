@@ -2,10 +2,11 @@
 ;; placed in the public domain.
 ;; DPV chapter 3 -- graphs
 
+;;;;;;;;;;;;;;
 ;; test graphs
 (defparameter *directed-graph* (copy-tree '((a c)
 					    (b a d)
-					    (c e f)
+					    (c d e f)
 					    (d c)
 					    (e f)
 					    (f))))
@@ -35,6 +36,7 @@
 					      (f g)
 					      (g f))))
 
+;;;;;;;;;;;;;
 ;; structures
 (defstruct (node
 	     (:print-function ;this will make node printing only print
@@ -47,10 +49,10 @@ property."
   (label)
   (adj-nodes nil)
   (visited nil)
-  (connected-component nil)
-  (pre 0)
-  (post 0))
+  (pre nil)
+  (post nil))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; read and make functions
 (defun read-node (node-list)
   "get unique nodes in graph. in a graph-list, there is one sub-list
@@ -86,6 +88,7 @@ adjacent to it."
     (add-neighbours graph graph-list)
     graph))
 
+;;;;;;;;;;;;;;;;;;;
 ;; init test graphs
 (defvar dg (read-graph *directed-graph*))
 (defvar dag (read-graph *dag-graph*))
@@ -103,6 +106,7 @@ adjacent to it."
       factorial
       (factorial (1- number) (* number factorial))))
 
+;;;;;;
 ;; DFS
 (defun visit-node (node)
   (setf (node-visited node) t))
@@ -128,6 +132,7 @@ adjacent to it."
       (funcall explore-fn node :pre-visit pre-visit
 	       :post-visit post-visit)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DFS with explicit stack
 (defun make-stack (&optional stack)
   #'(lambda (cmd &optional element)
@@ -166,6 +171,7 @@ adjacent to it."
 		       (stack-push stack unvisited-adj))
 		(funcall post-visit node))))))
 
+;;;;;;;;;;;;
 ;; adjacency
 (defun is-adjacent-to (node1 node2)
   "can I go from node2 to node1?"
@@ -209,16 +215,16 @@ adjacent to it."
 (defun empty-counter-p (counter)
   (funcall counter :test))
 
+;;;;;;;;;;;;;;;;;;;;;;;
 ;; connected components
 (defun set-connected-component (node component-id)
-  (setf (node-connected-component node) component-id))
+  (setf (node-visited node) component-id))
 
 (defun set-connected-component-and-visit (node component-id)
-  (set-connected-component node component-id)
-  (visit-node node))
+  (set-connected-component node component-id))
 
 (defun component-is (node ccid)
-  (= (node-connected-component node) ccid))
+  (= (node-visited node) ccid))
 
 (defun gather-component (graph ccid &optional (cc nil))
   "get all nodes which are part of connected component ccid."
@@ -251,6 +257,7 @@ adjacent to it."
                               node (get-count counter))))
     (show-connected-components graph (get-count counter))))
 
+;;;;;;;
 ;; dags
 (defun previsit (node counter)
   (unless (node-visited node)
@@ -258,16 +265,18 @@ adjacent to it."
     (visit-node node)))
 
 (defun postvisit (node counter)
-  (unless (node-post node)
+  (unless (node-post node) ;; I have to check if it's the first
+                           ;; post-visit because df-explore now has no
+                           ;; redundant checks of visitedness
     (setf (node-post node) (incf-count counter))))
 
-(defun reset-node-pre-post (node)
-  (setf (node-pre node) 0)
-  (setf (node-post node) 0))
+(defun reset-node-pre-post (node &key reset-value)
+  (setf (node-pre node) reset-value)
+  (setf (node-post node) reset-value))
 
-(defun reset-nodes-pre-post (graph)
+(defun reset-nodes-pre-post (graph &key reset-value)
   (dolist (node graph)
-    (reset-node-pre-post node)))
+    (reset-node-pre-post node :reset-value reset-value)))
 
 (defun show-pre-post (graph &optional (pre-post-list nil))
   (if (endp graph)
@@ -307,8 +316,8 @@ adjacent to it."
   (pre-post-visit-nodes graph)
   (not (any-back-edges? graph)))
 
-;; linearization
-
+;;;;;;;;;;;;;;;;;;;;
+;; dag linearization
 (defun linearize-visited-dag (graph)
   (let ((graph-copy (copy-seq graph)))
     (sort graph-copy #'> :key #'node-post)))
@@ -317,10 +326,11 @@ adjacent to it."
   (when (is-dag? graph)
     (linearize-visited-dag graph)))
 
+;; using node-pre as the number of incoming edges.
 (defun visit-count (node)
-  "to count number of incoming edges (1 is 0, because this will count
-the exploration from the graph)."
-  (incf (node-pre node)))
+  "to count number of incoming edges."
+  (incf (node-pre node))
+  (visit-node node))
 
 (defun sort-nodes-by-edges (dag)
   (let ((graph-copy (copy-seq dag)))
@@ -329,9 +339,11 @@ the exploration from the graph)."
 (defun all-linearizations-dag (dag)
   (unless (is-dag? dag)
     (error "graph not dag."))
-  (reset-nodes-pre-post dag)
+  (reset-nodes-pre-post dag :reset-value -1) ; -1 because incf before
+                                             ; setf
   (df-explore dag :pre-visit (lambda (node) (visit-count node)))
-  (rank-nodes dag))
+  ;(rank-nodes dag))
+  (mapcar #'node-pre dag))
 
 (defun decrement-incoming-edges-from-node (node)
   (dolist (adj (node-adj-nodes node))
@@ -344,11 +356,11 @@ the exploration from the graph)."
 (defun gather-sources (graph &key sources not-sources)
   (cond ((endp graph)
          (values sources not-sources))
-        ((= (node-pre (first graph)) 1)
+        ((= (node-pre (first graph)) 0)
          (gather-sources (rest graph)
                          :sources (cons (first graph) sources)
                          :not-sources not-sources))
-        (t
+        ((> (node-pre (first graph)) 0)
          (gather-sources (rest graph)
                          :sources sources
                          :not-sources
@@ -363,27 +375,6 @@ the exploration from the graph)."
         (decrement-incoming-edges sources)
             (rank-nodes not-sources (cons sources ranked-nodes)))))
 
-(defun aux-count-edges (edge-number ranked-nodes counter)
-  (let ((filtered-ranked-nodes (remove edge-number ranked-nodes
-                                       :test (lambda (num1 num2)
-                                               (when (= num1 num2)
-                                                 (incf-count counter)
-                                                 t)))))
-    (values filtered-ranked-nodes (get-count counter))))
-
-(defun count-edges (ranked-nodes &optional edge-count)
-  "ranked-nodes are nodes ranked by number of incoming edges."
-  (if (endp ranked-nodes)
-      edge-count
-      (let ((edge-number (first ranked-nodes))
-            (counter (make-counter 0)))
-        (multiple-value-bind (filtered-ranked-nodes count)
-            (aux-count-edges edge-number ranked-nodes counter)
-                             (count-edges filtered-ranked-nodes
-                                          (acons (first ranked-nodes)
-                                                 count
-                                                 edge-count))))))
-
 (defun combinations (edge-count)
   (reduce #'* (mapcar #'factorial (mapcar #'cdr edge-count))))
 
@@ -393,30 +384,14 @@ the exploration from the graph)."
         sources
         (find-sources (rest graph) :sources (cons node sources)
                       :not-sources (node-adj-nodes node)))))
-
-(defun aux-rank-nodes (linear-dag &optional ranked-dag)
-  (if (endp linear-dag)
-      ranked-dag
-      (let* ((sources (find-sources linear-dag))
-             (nr-sources (length sources)))
-        (aux-rank-nodes (subseq linear-dag nr-sources)
-                        (cons sources ranked-dag)))))
-
-(defun rank-dag (dag)
-  "return reverse transitive reduction of dag, that is,dag's nodes
-ranked by 'sourceness', i.e., list of lists where each sublist is
-composed of nodes of same rank (rank of a node is how many nodes must
-be removed from graph for it to be a source)."
-  (let ((linear-dag (linearize-dag dag)))
-    (aux-rank-nodes linear-dag)))
-
+#|
 (defun possible-linearizations (dag)
   "return number of possible linearizations."
   (let ((ranked-dag (rank-dag dag)))
     (reduce #'* (mapcar (lambda (same-rank-nodes)
                           (factorial (length same-rank-nodes)))
                         ranked-dag))))
-
+|#
 ;; when node-visited deveria estar na visit function, não antes.
 
 ;; tests
@@ -441,5 +416,5 @@ be removed from graph for it to be a source)."
 (any-back-edges? ug) ; (#n.B #n.D)
 (is-dag? dag) ; t
 (is-dag? ug) ; nil
-(rank-dag dag) ; ((#n.F #n.E) (#n.C) (#n.D #n.A) (#n.B))
-(possible-linearizations dag) ; 4
+;;(rank-dag dag) ; ((#n.F #n.E) (#n.C) (#n.D #n.A) (#n.B))
+;;(possible-linearizations dag) ; 4
