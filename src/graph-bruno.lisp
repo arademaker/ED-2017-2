@@ -48,10 +48,10 @@ property."
   (adj-nodes nil)
   (visited nil)
   (connected-component nil)
-  (pre nil)
-  (post nil))
+  (pre 0)
+  (post 0))
 
-;; read functions
+;; read and make functions
 (defun read-node (node-list)
   "get unique nodes in graph. in a graph-list, there is one sub-list
 for each node, and its car is the node, and its cdr are the nodes
@@ -115,13 +115,6 @@ adjacent to it."
       (df-explore-from-node adj-node :pre-visit pre-visit
 			    :post-visit post-visit)))
   (funcall post-visit node))
-
-(defun df-explore-from-label (graph node-label
-			      &key (pre-visit #'visit-node)
-				(post-visit #'identity))
-  (df-explore-from-node (get-node graph node-label)
-			:pre-visit pre-visit
-			:post-visit post-visit))
 
 (defun unvisit-nodes(graph)
   (dolist (node graph)
@@ -236,8 +229,7 @@ adjacent to it."
 				   (component-is node ccid))
 				 (first graph) cc))))
 
-(defun show-connected-components (graph
-				  max-ccid
+(defun show-connected-components (graph max-ccid
 				  &optional (connected-components nil))
   (if (< max-ccid 0)
       connected-components
@@ -248,13 +240,12 @@ adjacent to it."
 
 (defun connected-components (graph)
   (let ((counter (make-counter -1))) ; because it increments before
-    (df-explore graph :explore-fn (lambda (node &key pre-visit
-                                                  post-visit)
-                                    (unless (node-visited node)
-                                      (incf-count counter)
-                                      (df-explore-from-node
-                                       node :pre-visit pre-visit
-                                       :post-visit post-visit)))
+    (df-explore graph :explore-fn
+                (lambda (node &key pre-visit post-visit)
+                  (unless (node-visited node)
+                    (incf-count counter)
+                    (df-explore-from-node
+                     node :pre-visit pre-visit :post-visit post-visit)))
                 :pre-visit (lambda (node)
                              (set-connected-component-and-visit
                               node (get-count counter))))
@@ -262,15 +253,17 @@ adjacent to it."
 
 ;; dags
 (defun previsit (node counter)
-  (setf (node-pre node) (incf-count counter))
-  (visit-node node))
+  (unless (node-visited node)
+    (setf (node-pre node) (incf-count counter))
+    (visit-node node)))
 
 (defun postvisit (node counter)
-  (setf (node-post node) (incf-count counter)))
+  (unless (node-post node)
+    (setf (node-post node) (incf-count counter))))
 
 (defun reset-node-pre-post (node)
-  (setf (node-pre node) nil)
-  (setf (node-post node) nil))
+  (setf (node-pre node) 0)
+  (setf (node-post node) 0))
 
 (defun reset-nodes-pre-post (graph)
   (dolist (node graph)
@@ -292,8 +285,8 @@ adjacent to it."
     (reset-nodes-pre-post graph)
     (df-explore graph :explore-fn explore-fn
 		:pre-visit (lambda (node) (previsit node counter))
-		:post-visit (lambda (node) (postvisit node counter)))
-  (show-pre-post graph)))
+		:post-visit (lambda (node) (postvisit node counter))))
+  (show-pre-post graph))
 
 (defun back-edge? (node adj)
   (let ((pre-node (node-pre node))
@@ -323,6 +316,76 @@ adjacent to it."
 (defun linearize-dag (graph)
   (when (is-dag? graph)
     (linearize-visited-dag graph)))
+
+(defun visit-count (node)
+  "to count number of incoming edges (1 is 0, because this will count
+the exploration from the graph)."
+  (incf (node-pre node)))
+
+(defun sort-nodes-by-edges (dag)
+  (let ((graph-copy (copy-seq dag)))
+    (sort graph-copy #'< :key #'node-pre)))
+
+(defun all-linearizations-dag (dag)
+  (unless (is-dag? dag)
+    (error "graph not dag."))
+  (reset-nodes-pre-post dag)
+  (df-explore dag :pre-visit (lambda (node) (visit-count node)))
+  (rank-nodes dag))
+
+(defun decrement-incoming-edges-from-node (node)
+  (dolist (adj (node-adj-nodes node))
+    (decf (node-pre adj))))
+
+(defun decrement-incoming-edges (nodes)
+  (dolist (node nodes)
+    (decrement-incoming-edges-from-node node)))
+
+(defun gather-sources (graph &key sources not-sources)
+  (cond ((endp graph)
+         (values sources not-sources))
+        ((= (node-pre (first graph)) 1)
+         (gather-sources (rest graph)
+                         :sources (cons (first graph) sources)
+                         :not-sources not-sources))
+        (t
+         (gather-sources (rest graph)
+                         :sources sources
+                         :not-sources
+                         (cons (first graph) not-sources)))))
+
+(defun rank-nodes (nodes &optional ranked-nodes)
+  "nodes marked by incoming edges."
+  (if (endp nodes)
+      ranked-nodes
+      (multiple-value-bind (sources not-sources)
+          (gather-sources nodes)
+        (decrement-incoming-edges sources)
+            (rank-nodes not-sources (cons sources ranked-nodes)))))
+
+(defun aux-count-edges (edge-number ranked-nodes counter)
+  (let ((filtered-ranked-nodes (remove edge-number ranked-nodes
+                                       :test (lambda (num1 num2)
+                                               (when (= num1 num2)
+                                                 (incf-count counter)
+                                                 t)))))
+    (values filtered-ranked-nodes (get-count counter))))
+
+(defun count-edges (ranked-nodes &optional edge-count)
+  "ranked-nodes are nodes ranked by number of incoming edges."
+  (if (endp ranked-nodes)
+      edge-count
+      (let ((edge-number (first ranked-nodes))
+            (counter (make-counter 0)))
+        (multiple-value-bind (filtered-ranked-nodes count)
+            (aux-count-edges edge-number ranked-nodes counter)
+                             (count-edges filtered-ranked-nodes
+                                          (acons (first ranked-nodes)
+                                                 count
+                                                 edge-count))))))
+
+(defun combinations (edge-count)
+  (reduce #'* (mapcar #'factorial (mapcar #'cdr edge-count))))
 
 (defun find-sources (graph &key sources not-sources)
   (let ((node (first graph)))
