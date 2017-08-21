@@ -129,14 +129,11 @@ adjacent to it."
 
 (defun df-explore (graph &key (explore-fn #'df-explore-from-node)
 			   (pre-visit #'visit-node)
-			   (post-visit #'identity)
-                           (source-fn #'identity))
+			   (post-visit #'identity))
   (unvisit-nodes graph)
   (dolist (node graph)
-    (unless (node-visited node)
-      (funcall source-fn node)
       (funcall explore-fn node :pre-visit pre-visit
-	       :post-visit post-visit))))
+	       :post-visit post-visit)))
 
 ;; DFS with explicit stack
 (defun make-stack (&optional stack)
@@ -251,11 +248,16 @@ adjacent to it."
 
 (defun connected-components (graph)
   (let ((counter (make-counter -1))) ; because it increments before
-    (df-explore graph :pre-visit (lambda (node)
-                                   (set-connected-component-and-visit
-                                    node (get-count counter)))
-                :source-fn (lambda (node) (identity node)
-                                   (incf-count counter)))
+    (df-explore graph :explore-fn (lambda (node &key pre-visit
+                                                  post-visit)
+                                    (unless (node-visited node)
+                                      (incf-count counter)
+                                      (df-explore-from-node
+                                       node :pre-visit pre-visit
+                                       :post-visit post-visit)))
+                :pre-visit (lambda (node)
+                             (set-connected-component-and-visit
+                              node (get-count counter))))
     (show-connected-components graph (get-count counter))))
 
 ;; dags
@@ -351,6 +353,8 @@ be removed from graph for it to be a source)."
     (reduce #'* (mapcar (lambda (same-rank-nodes)
                           (factorial (length same-rank-nodes)))
                         ranked-dag))))
+
+;; when node-visited deveria estar na visit function, não antes.
 
 ;; tests
 (defun all-visited? (graph)
