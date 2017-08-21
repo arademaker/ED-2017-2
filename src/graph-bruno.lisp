@@ -327,23 +327,11 @@ adjacent to it."
     (linearize-visited-dag graph)))
 
 ;; using node-pre as the number of incoming edges.
-(defun visit-count (node)
-  "to count number of incoming edges."
-  (incf (node-pre node))
-  (visit-node node))
-
-(defun sort-nodes-by-edges (dag)
-  (let ((graph-copy (copy-seq dag)))
-    (sort graph-copy #'< :key #'node-pre)))
-
-(defun all-linearizations-dag (dag)
-  (unless (is-dag? dag)
-    (error "graph not dag."))
-  (reset-nodes-pre-post dag :reset-value -1) ; -1 because incf before
-                                             ; setf
-  (df-explore dag :pre-visit (lambda (node) (visit-count node)))
-  ;(rank-nodes dag))
-  (mapcar #'node-pre dag))
+(defun calculate-incoming-edges (graph)
+  (dolist (node graph)
+    (dolist (adj (node-adj-nodes node))
+      (incf (node-pre adj))))
+  (mapcar #'node-pre graph))
 
 (defun decrement-incoming-edges-from-node (node)
   (dolist (adj (node-adj-nodes node))
@@ -367,7 +355,7 @@ adjacent to it."
                          (cons (first graph) not-sources)))))
 
 (defun rank-nodes (nodes &optional ranked-nodes)
-  "nodes marked by incoming edges."
+  "nodes marked by number incoming edges."
   (if (endp nodes)
       ranked-nodes
       (multiple-value-bind (sources not-sources)
@@ -375,24 +363,15 @@ adjacent to it."
         (decrement-incoming-edges sources)
             (rank-nodes not-sources (cons sources ranked-nodes)))))
 
-(defun combinations (edge-count)
-  (reduce #'* (mapcar #'factorial (mapcar #'cdr edge-count))))
+(defun combinations (ranked-nodes)
+  (reduce #'* (mapcar #'factorial (mapcar #'length ranked-nodes))))
 
-(defun find-sources (graph &key sources not-sources)
-  (let ((node (first graph)))
-    (if (or (find node not-sources) (endp graph))
-        sources
-        (find-sources (rest graph) :sources (cons node sources)
-                      :not-sources (node-adj-nodes node)))))
-#|
-(defun possible-linearizations (dag)
-  "return number of possible linearizations."
-  (let ((ranked-dag (rank-dag dag)))
-    (reduce #'* (mapcar (lambda (same-rank-nodes)
-                          (factorial (length same-rank-nodes)))
-                        ranked-dag))))
-|#
-;; when node-visited deveria estar na visit function, não antes.
+(defun possible-linearizations-dag (dag)
+  (unless (is-dag? dag)
+    (error "graph not dag."))
+  (reset-nodes-pre-post dag :reset-value 0)
+  (calculate-incoming-edges dag)
+  (combinations (rank-nodes dag)))
 
 ;; tests
 (defun all-visited? (graph)
@@ -416,5 +395,9 @@ adjacent to it."
 (any-back-edges? ug) ; (#n.B #n.D)
 (is-dag? dag) ; t
 (is-dag? ug) ; nil
-;;(rank-dag dag) ; ((#n.F #n.E) (#n.C) (#n.D #n.A) (#n.B))
-;;(possible-linearizations dag) ; 4
+(calculate-incoming-edges ug) ; (4 9 5 6 6 12 13)
+(calculate-incoming-edges dag) ; (1 0 2 1 1 1)
+(rank-nodes dag) ; ((#n.F #n.E) (#n.C) (#n.D #n.A) (#n.B))
+(rank-nodes dag2) ; ((#n.I)(#n.G #n.F)(#n.C #n.D #n.E)(#n.H #n.B #n.A))
+(possible-linearizations-dag dag) ; 4
+(possible-linearizations-dag dag2) ; 72
