@@ -77,8 +77,7 @@
 
 (defun add-node (trie value)
   (let ((value (str-to-char value)))
-    (multiple-value-bind (trie-node * ix)
-	(search-trie-aux trie value)
+    (multiple-value-bind (trie-node * ix) (search-trie-aux trie value)
       (if (= (length value) ix)
 	  trie-node
 	  (insert-node trie-node (subseq value ix))))))
