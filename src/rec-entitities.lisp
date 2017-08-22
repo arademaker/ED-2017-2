@@ -173,13 +173,12 @@ mtokens: (pt em o governo) -> (pt no governo)"
 ;; (count-and-remove-entities (list 1 -1)
 ;; 			   (list 1 2 3 4 -1 1 8 -1 -1 3)
 ;; 			   :predicate #'=) ;((-1 . 3) ((1 . 2))
-;; (let* ((sents (cl-conllu:read-conllu #p"~/work/cpdoc/dhbb-nlp/udp/"))
-;;        (ents (read-file "/Users/arademaker/work/cpdoc/dhbb/dic/pessoa-individuo.txt"))
-;;        (trie (start-trie ents)))
-;;   (reset-entities)
-;;   (recognize-ents-in-sentences trie sents)
-;;   (show-entities)
-;;   (count-and-remove-entities ents (show-entities)))
 
-
+(let* ((sents (cl-conllu:read-conllu #P"~/work/cpdoc/dhbb-nlp/udp/"))
+       (ents (read-file "/Users/arademaker/work/cpdoc/dhbb/dic/pessoa-individuo.txt"))
+       (trie (start-trie ents)))
+  (reset-entities)
+  (recognize-ents-in-sentences trie sents)
+  (print (show-entities))
+  (print (count-and-remove-entities ents (show-entities))))
 
