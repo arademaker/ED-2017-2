@@ -5,8 +5,22 @@
 ;; tá ok?
 
 (ql:quickload :cl-conllu)
-(compile-file #p"trie.lisp")
-(load #p"trie.fasl")
+(compile-file #p"~/git/ed-2017-2/src/trie.lisp")
+(load #p"~/git/ed-2017-2/src/trie.fasl")
+
+#|;;not used
+(defun make-entities(&optional entities)
+  #'(lambda (cmd &optional entity)
+      (ecase cmd
+        (:push (push entity entities))
+        (:get entities))))
+
+(defun entities-push (entities entity)
+  (funcall entities :push entity))
+
+(defun entities-get (entities)
+  (funcall entities :get))
+|#
 
 (let (entities)
   (defun insert-entity (entity)
@@ -16,17 +30,27 @@
   (defun reset-entities ()
     (setf entities nil)))
 
+;; process entities: join names, add them to entities-found, do things
+;; to them
+
 (defun join-words (words &optional joined-words)
+;; equiv to (format nil "~{~A~^ ~}" words), but faster
   (if (endp words)
-      (subseq joined-words 1)
+      (subseq joined-words 1) ;to remove first space
       (join-words (rest words) (concatenate 'string (list #\space)
 					      (first words)
 					      joined-words))))
 
+(defun get-token-form (token)
+  (etypecase token
+    (cl-conllu:token (cl-conllu:token-form token))
+    (cl-conllu:mtoken (cl-conllu:mtoken-form token))))
+
 (defun process-entity (entity)
   (insert-entity (join-words (mapcar (lambda (node-token)
-	    (get-token-form (rest node-token)))
-	  entity))))
+                                       (get-token-form
+                                        (rest node-token)))
+                                     entity))))
 
 (defun unwind-entity (entity)
   (when entity
@@ -34,10 +58,7 @@
 	(process-entity entity))
 	(unwind-entity (rest entity))))
 
-(defun get-token-form (token)
-  (if (typep token 'cl-conllu:token)
-      (cl-conllu:token-form token)
-      (cl-conllu:mtoken-form token)))
+;; recognize entities
 
 (defun token-in-trie? (trie token)
   "checks if token is in trie, if it is, sees if it is followed by a
@@ -54,6 +75,8 @@ in trie returns nil"
 		(values trie-node token)))))))
 
 (defun aux-recognize-ents-in-tokens (trie token-list &optional entity)
+  (when (endp token-list)
+    (return-from aux-recognize-ents-in-tokens (values nil entity)))
   (multiple-value-bind (trie-node token)
       (token-in-trie? trie (first token-list))
     (cond ((and (null entity)
@@ -62,9 +85,9 @@ in trie returns nil"
 	  ((and (null trie-node) entity)
 	   (values token-list entity))
 ;; not (rest token-list) to give tk a fresh chance, but will only give
-;; this chance to last tk. (think of searching for joão almeida de
+;; this chance to the last tk. (think of searching for joão almeida de
 ;; castro when only joão almeida and joão almeida de silva are ents:
-;; only castro will be reconsidered). is that a problem?
+;; only castro will be reconsidered, not 'de'). is that a problem?
 	  (trie-node
 	   (aux-recognize-ents-in-tokens trie-node
 					 (rest token-list)
@@ -78,25 +101,27 @@ in trie returns nil"
       (unwind-entity entity)
       (recognize-ents-in-tokens trie rest-token-list))))
 
-(defun construct-token-list-aux (tokens begin end
+;; prepare input: get tokens and mtokens from sentence
+
+(defun aux-construct-token-list (tokens start end
 				 &key token-list mtoken)
-  (when (endp tokens) (return-from construct-token-list-aux
+  (when (endp tokens) (return-from aux-construct-token-list
 			(values nil token-list)))
 ;; because an mtoken can be the last one in a sentence.
   (let* ((token (first tokens))
 	(token-id (cl-conllu:token-id token))
 	(rest-tokens (rest tokens)))
-    (cond ((< token-id begin)
-	   (construct-token-list-aux rest-tokens begin end
+    (cond ((< token-id start)
+	   (aux-construct-token-list rest-tokens start end
 				     :token-list (cons token
 						       token-list)
 				     :mtoken mtoken))
-	  ((= token-id begin)
-	   (construct-token-list-aux rest-tokens begin end
+	  ((= token-id start)
+	   (aux-construct-token-list rest-tokens start end
 				     :token-list (cons mtoken
 						       token-list)))
-	  ((and (> token-id begin) (<= token-id end))
-	   (construct-token-list-aux rest-tokens begin end
+	  ((and (> token-id start) (<= token-id end))
+	   (aux-construct-token-list rest-tokens start end
 				     :token-list token-list))
 	  ((> token-id end)
 	   (values tokens token-list)))))
@@ -107,10 +132,10 @@ mtokens: (pt em o governo) -> (pt no governo)"
   (if (endp mtokens)
       (append (reverse token-list) tokens)
       (let* ((mtoken (first mtokens))
-	     (begin (cl-conllu:mtoken-start mtoken))
+	     (start (cl-conllu:mtoken-start mtoken))
 	     (end (cl-conllu:mtoken-end mtoken)))
 	(multiple-value-bind (rest-tokens result-token-list)
-	    (construct-token-list-aux tokens begin end :mtoken mtoken)
+	    (aux-construct-token-list tokens start end :mtoken mtoken)
 	  (construct-token-list rest-tokens (rest mtokens)
 				(append result-token-list
 					token-list))))))
@@ -118,14 +143,19 @@ mtokens: (pt em o governo) -> (pt no governo)"
 (defun cons-tokens-from-sentence (sentence)
   (construct-token-list (cl-conllu:sentence-tokens sentence)
 			(cl-conllu:sentence-mtokens sentence)))
-    
+
+;; entry points
+
 (defun recognize-ents-in-sentence (trie sentence)
-  (recognize-ents-in-tokens trie (cons-tokens-from-sentence sentence)))
+  (recognize-ents-in-tokens trie
+                            (cons-tokens-from-sentence sentence)))
 
 (defun recognize-ents-in-sentences (trie sentences)
   (when sentences
     (recognize-ents-in-sentence trie (first sentences))
     (recognize-ents-in-sentences trie (rest sentences))))
+
+;; count entities (remove is for better performance)
 
 (defun count-and-remove (entity entities-found
 			 &key (predicate #'string=)
@@ -142,8 +172,9 @@ mtokens: (pt em o governo) -> (pt no governo)"
 	(count-and-remove entity rest-entities-found
 			  :predicate predicate
 			  :count count
-			  :filtered-entities (cons entity-found
-						   filtered-entities)))))
+			  :filtered-entities
+                          (cons entity-found
+                                filtered-entities)))))
 
 (defun count-and-remove-entity (entity entities-found
 				entity-count predicate)
@@ -163,8 +194,8 @@ mtokens: (pt em o governo) -> (pt no governo)"
 				   :predicate predicate
 				   :entity-count new-entity-count))))
 
+;; tests
 
-;; ;; tests
 ;; (join-words '("silva" "da" "lula")) ; "lula da silva"
 ;; (count-and-remove 1 (list 1 52 26 73 1 0) :predicate #'=) ; 2 (0 73 26 52)
 ;; (count-and-remove -88 (list 1 52 26 73 1 0) :predicate #'=) ; 0 (0 1...)
@@ -173,12 +204,10 @@ mtokens: (pt em o governo) -> (pt no governo)"
 ;; (count-and-remove-entities (list 1 -1)
 ;; 			   (list 1 2 3 4 -1 1 8 -1 -1 3)
 ;; 			   :predicate #'=) ;((-1 . 3) ((1 . 2))
-
-(let* ((sents (cl-conllu:read-conllu #P"~/work/cpdoc/dhbb-nlp/udp/"))
-       (ents (read-file "/Users/arademaker/work/cpdoc/dhbb/dic/pessoa-individuo.txt"))
-       (trie (start-trie ents)))
-  (reset-entities)
-  (recognize-ents-in-sentences trie sents)
-  (print (show-entities))
-  (print (count-and-remove-entities ents (show-entities))))
+;; (let* ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
+;;        (ents (read-file "~/git/ed-2017-2/src/entities.txt"))
+;;        (trie (start-trie ents)))
+;;   (reset-entities)
+;;   (recognize-ents-in-sentences trie sents)
+;;   (count-and-remove-entities ents (show-entities)))
 
