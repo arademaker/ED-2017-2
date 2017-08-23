@@ -1,0 +1,29 @@
+{
+    "rio": {
+        "de": {
+            "janeiro": {
+                "finish": {}
+            }
+        }
+    },
+    "mario": {
+        "jorge": {
+            "finish": {}
+        },
+        "lucas": {
+            "finish": {}
+        }
+    },
+    "joao": {
+        "finish": {},
+        "mario": {
+            "finish": {}
+        },
+        "rabelo": {
+            "finish": {}
+        }
+    },
+    "fgv": {
+        "finish": {}
+    }
+}
