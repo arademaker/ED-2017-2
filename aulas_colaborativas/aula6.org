@@ -1,0 +1,39 @@
+# aula 6
+
+> assignments
+> ver tarefas.org no repositório
+> ver links do arquivo Aula 6 - projeto 
+
+- trabalho em grupo (toda a sala)
+
+    - https://github.com/own-pt/cl-conllu/issues/3
+
+## Banco de dados - SQL
+- É como uma árvore indexada que mantém os indices de forma que identifique com facilidade todos os casos onde, por exemplo, nome é Alexandre.
+ 
+- Complexidade do algoritmo: no máximo *log n* 
+
+### Exemplo de query no SQL:
+- Query para todos os telefones de pessoas que se chamam Alexandre: (Exemplo de banco de dados mostrado no quadro - três colunas: id, nome e telefone)
+```
+SELECT nome tel
+FROM tabela
+WHERE nome="Alexandre"
+```
+> Output: Tabela com duas colunas em que a primeira seria o nome e na segunda o telefone de todos os alexandres da base 
+    
+### Função search
+> input: list num 
+> output: True or False
+> custo: $O(n)$
+```
+(defun my-find (item list)
+   (if (null list)
+        nil
+        (if (equal (car list) item)
+            item
+            (my-find item(cdr list)))))
+```
+
+- É possível generalizar incluindo um parâmetro *teste* para guiar o qual tipo de comparação vai ser feita para cada estrutura de input.
+- Caso o input seja uma lista ordenada o custo será: $O(\log n)$

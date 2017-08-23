@@ -1,0 +1,70 @@
+# aula 1
+
+-   diferença: aula de programação vs. aula de algoritmos e estrutura de dados
+
+-   corretude de algorítmos. Como provar?
+
+-   O problema de parada, indecidível. Vide
+<https://en.wikipedia.org/wiki/Halting_problem>.
+
+-   complexidade de um algorítmo é medida em instruções executadas, não tempo. Assim fatores particulares como a máquina sendo usada não afetam a complexidade 'teórica' do algorítmo.
+
+-   complexidade do problema vs. do algorítmo.
+
+-   **por isso**, o curso independe da linguagem de programação.
+
+-   algoritmo vs problema: um problema pode ser resolvido em tempo
+    linear (no melhor dos casos), mas uma dada implementação pode ser
+    exponencial, por exemplo (exemplos de fibonacci).
+
+-   a princípio a complexidade dos algoritmos independem da linguagem de
+    implementação, embora em linguagens de alto nível as instruções ao
+    compilador possam ser diferentes.
+
+-   recursão não necessariamente é ruim. Ver exemplos de fibonacci: dois
+    algoritmos recursivos que tem performance exponencial (`fib1`) e
+    linear (`fib2`).
+
+- [tail recursion](https://en.wikipedia.org/wiki/Tail_call) é uma forma de programar funções recursivas que permite que algumas linguagens otimizem o código gerado. Vide ainda <http://wiki.c2.com/?TailRecursion>.
+
+``` {.commonlisp}
+(defun fib1 (n)
+  (cond 
+    ((equal n 0) 0)
+    ((equal n 1) 1)
+    (t (+ (fib1 (- n 1))
+      (fib1 (- n 2))))))
+
+(defun fib-aux (n a b)
+   (if (= n 0)
+       a
+       (fib-aux (- n 1) b (+ a b))))
+
+(defun fib2 (n)
+  (fib-aux n 0 1))
+
+; making fib-aux internal to fib2
+(defun fib2 (n)
+    (labels ((calc-fib (n a b)
+       (if (= n 0)
+           a
+           (calc-fib (- n 1) b (+ a b)))))
+  (calc-fib n 0 1)))
+
+
+(defun fib3 (n)
+  (let ((a 0)
+    (b 1)
+    (tmp 0))
+    (dotimes (i n a)
+  (setf tmp a
+        a b
+        b (+ tmp b)))))
+
+
+(defun fib4 (n)
+  (do ((k n (- k 1))
+   (a 0 b)
+   (b 1 (+ a b)))
+  ((= k 0) a)))
+```
