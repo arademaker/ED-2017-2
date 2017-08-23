@@ -1,7 +1,7 @@
 
-Tenha os arquivo "entities.txt" e o aquivo "sentences.txt" presente na mesma pasta do seu query_trie.py
+Tenha os arquivos “trie.txt”, “entities.txt" e "sentences.txt" presentes na mesma pasta do seu query_trie.py e rode o query_trie.py, ou:
 
-1.O arquivo entidades.txt é um arquivos que possui sua lista de entidades, com uma entidade por linha. Exemplo de arquivo entities.txt:
+1.Crie o arquivo entities.txt como um arquivos que possui sua lista de entidades, com uma entidade por linha. Exemplo de arquivo entities.txt:
 Joao
 Joao Mario
 Joao Rabelo
@@ -10,7 +10,7 @@ Mario Jorge
 FGV
 Rio de Janeiro
 
-2.O arquivo senteces.txt é um simples txt com uma sentença por linha. Exemplo de arquivo sentences:
+2.Crie o arquivo senteces.txt como um simples txt com uma sentença por linha. Exemplo de arquivo sentences:
 Rio de Janeiro é a melhor cidade do mundo.
 FGV anuncia cortes nos salários dos funcionários.
 Nunca antes Joao correu tanto.
@@ -24,6 +24,10 @@ Joao e Guilherme tomam café na FGV todos os dias, mas Joao sempre toma mais.
 3.No terminal, use o comando: 
 	
 	python get_trie.py entities.txt trie.txt
+
+
+obs: certifique-se que o script “get_trie.py” está no seu diretório corrent
+
 
 O aquivo obtido trie.txt será da forma:
 
@@ -59,7 +63,7 @@ O aquivo obtido trie.txt será da forma:
 
 4. Rode o query_trie.py fazendo o comando: 
 
-python query_trie.py
+	python query_trie.py
 
 O programa irá retornar dois resultados:
 
