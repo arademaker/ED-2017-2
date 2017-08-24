@@ -5,6 +5,9 @@
 (compile-file #p"~/git/ed-2017-2/src/trie.lisp")
 (load #p"~/git/ed-2017-2/src/trie.fasl")
 
+
+;;
+;; pre-processing
 (defun get-token-form (token)
   (etypecase token
     (cl-conllu:token (cl-conllu:token-form token))
@@ -52,9 +55,32 @@ mtokens: (pt em o governo) -> (pt no governo)"
 
 (defun cons-tokens-from-sentence (sentence)
   "this pre-processes cl-conllu classes for input"
-  (mapcar #'process-form (construct-token-list
-                            (cl-conllu:sentence-tokens sentence)
-                            (cl-conllu:sentence-mtokens sentence))))
+  (construct-token-list (cl-conllu:sentence-tokens sentence)
+                        (cl-conllu:sentence-mtokens sentence)))
 
-(let ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu")))
-  (mapcar #'cons-tokens-from-sentence sents))
+(defun cons-tokens-from-sentences (sentences)
+  (mapcar #'cons-tokens-from-sentence sentences))
+
+(defun forms-from-sentence (sentence)
+  (mapcar #'get-token-form sentence))
+
+(defun forms-from-sentences (sentences)
+  (mapcar #'forms-from-sentence sentences))
+
+(defun chars-from-sentence (sentence)
+  (mapcar #'process-form sentence))
+
+(defun chars-from-sentences (sentences)
+  (mapcar #'chars-from-sentence sentences))
+
+;;
+;; visualization
+
+
+;;
+;; tests
+(let* ((raw-sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
+       (token-sents (cons-tokens-from-sentences raw-sents))
+       (form-sents (forms-from-sentences token-sents))
+       (char-sents (chars-from-sentences token-sents)))
+  )
