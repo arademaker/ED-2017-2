@@ -7,7 +7,7 @@ with open('trie.txt','r') as inf:
 
 #load sentences.txt
 with open('sentences.txt','r') as sentence_file:
-    sentences_vec = sentence_file.read().splitlines()
+    sentences_vec = [it.replace('.','') for it in sentence_file.read().splitlines()]
 
 
 def wordInTrie(trie,pos: int ,entidade: list) -> bool: #recebe como parametro a trie, a posição na sentença e a entidade de retorno
