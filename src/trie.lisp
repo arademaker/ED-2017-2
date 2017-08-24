@@ -91,7 +91,7 @@ separator"
 
 (defun str-in-trie? (trie string &optional (separator #\space))
   (let ((chars (process-string string separator)))
-    (in-trie? trie chars)))
+    (leaf-in-trie? trie chars)))
 
 ;;
 ;; cons trie
@@ -133,8 +133,9 @@ separator"
 ;;
 ;; tests
 
-(let* ((list-ents (read-entities #p"/home/bruno/git/ed-2017-2/src/entities.txt"))
-       (test-trie (start-trie list-ents)))
+(let* ((raw-ents (read-entities #p"/home/bruno/git/ed-2017-2/src/entities.txt"))
+       (ents (process-entities raw-ents))
+       (test-trie (start-trie ents)))
   (trie-is-leaf? test-trie) ; nil
   (str-search-trie test-trie "amanda") ; |a| (|a| |d| |n| |a| |m| |a|) 6
   (str-search-trie test-trie "xesus") ; |ROOT| NIL 0
