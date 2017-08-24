@@ -8,6 +8,8 @@
 (ql:quickload :cl-conllu)
 (compile-file #p"~/git/ed-2017-2/src/trie.lisp")
 (load #p"~/git/ed-2017-2/src/trie.fasl")
+(compile-file #p"~/git/ed-2017-2/src/rec-conllu.lisp")
+(load #p"~/git/ed-2017-2/src/rec-conllu.fasl")
 
 ;;
 ;; recognize entities
@@ -81,12 +83,15 @@ with entities recognized in index ix (entity . ix)"
 
 ;;
 ;; visualization
+(defun get-entity (entities entid)
+  (nth entid entities))
+
 (defun get-entities (entities entids &optional entities-found)
   "get entities' names from entity ids."
   (if (endp entids)
       entities-found
       (get-entities entities (rest entids)
-                    (cons (nth (caar entids) entities)
+                    (cons (get-entity entities (caar entids))
                           entities-found))))
 
 (defun visualize-entities-and-sentences (sentences rec-entities
@@ -107,63 +112,78 @@ paired."
 
 ;;
 ;; count entities (remove is for better performance)
-(defun count-and-remove (entity entities-found
-			 &key (predicate #'string=)
-			   (count 0) filtered-entities)
-  (when (endp entities-found) (return-from count-and-remove
-				(values count filtered-entities)))
-  (let ((entity-found (first entities-found))
-	(rest-entities-found (rest entities-found)))
-    (if (funcall predicate entity entity-found)
-	(count-and-remove entity rest-entities-found
+(defun get-entids-from-entrec (rec-entity &optional entities-found)
+  "entrec '(sentid (entid start size) (entid2 start2 size2))"
+  (if (endp rec-entity)
+      entities-found
+      (get-entids-from-entrec (rest rec-entity) (cons (caar rec-entity)
+                                          entities-found))))
+
+(defun get-entids-from-entrecs (rec-entities &optional entities-found)
+  "equiv to (mapcan (lambda (entrec)
+            (get-entids-from-entrec (rest entrec)))
+          rec-entities))"
+  (if (endp rec-entities)
+      entities-found
+      (get-entids-from-entrecs (rest rec-entities)
+                                 (append (get-entids-from-entrec
+                                        (cdar rec-entities))
+                                       entities-found))))
+
+(defun count-and-remove (item sequence &key (predicate #'=)
+                                          (count 0) filtered-items)
+  (when (endp sequence) (return-from count-and-remove
+				(values count filtered-items)))
+  (let ((se1 (first sequence))
+	(rest-sequence (rest sequence)))
+    (if (funcall predicate item se1)
+	(count-and-remove item rest-sequence
 			  :predicate predicate
 			  :count (1+ count)
-			  :filtered-entities filtered-entities)
-	(count-and-remove entity rest-entities-found
+			  :filtered-items filtered-items)
+	(count-and-remove item rest-sequence
 			  :predicate predicate
 			  :count count
-			  :filtered-entities
-                          (cons entity-found
-                                filtered-entities)))))
+			  :filtered-items
+                          (cons se1 filtered-items)))))
 
-(defun count-and-remove-entity (entity entities-found
-				entity-count predicate)
-  (multiple-value-bind (count filtered-entities)
-      (count-and-remove entity entities-found :predicate predicate)
-    (values (acons entity count entity-count) filtered-entities)))
+(defun count-and-remove-entity (entid entids-found
+                                &optional entid-count (predicate #'=))
+  (multiple-value-bind (count filtered-entids)
+      (count-and-remove entid entids-found :predicate predicate)
+    (values (acons entid count entid-count) filtered-entids)))
 
-(defun count-and-remove-entities (entities entities-found
-				  &key (predicate #'string=)
-				    entity-count)
-  (if (endp entities)
-      entity-count
-      (multiple-value-bind (new-entity-count filtered-entities)
-	  (count-and-remove-entity (first entities) entities-found
-				   entity-count predicate)
-	(count-and-remove-entities (rest entities) filtered-entities
+(defun count-and-remove-entities (entids &key (predicate #'=)
+                                           entid-count)
+  (if (endp entids)
+      entid-count
+      (multiple-value-bind (new-entid-count filtered-entids)
+	  (count-and-remove-entity (first entids) entids
+				   entid-count predicate)
+	(count-and-remove-entities filtered-entids
 				   :predicate predicate
-				   :entity-count new-entity-count))))
+				   :entid-count new-entid-count))))
+
+(defun viz-count (entities entid-count &optional entity-count)
+  (if (endp entid-count)
+      entity-count
+      (destructuring-bind (entid . count) (first entid-count)
+        (viz-count entities (rest entid-count)
+                   (acons (get-entity entities entid)
+                          count
+                          entity-count)))))
 
 ;;
 ;; tests
-#|
-(join-words '("silva" "da" "lula")) ; "lula da silva"
-(count-and-remove 1 (list 1 52 26 73 1 0) :predicate #'=) ; 2 (0 73 26 52)
-(count-and-remove -88 (list 1 52 26 73 1 0) :predicate #'=) ; 0 (0 1...)
-(count-and-remove-entity 1 (list 1 284 1 393 0 -1)
-			 nil #'=) ; ((1 . 2)) (-1 0 393 284)
-(count-and-remove-entities (list 1 -1)
-			   (list 1 2 3 4 -1 1 8 -1 -1 3)
-			   :predicate #'=) ;((-1 . 3) ((1 . 2))
-(let* ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
-       (ents (read-entities #p"~/git/ed-2017-2/src/entities.txt"))
-       (trie (start-trie ents)))
-  (reset-entities)
-  (recognize-ents-in-sentences trie sents)
-  (count-and-remove-entities ents (show-entities)))
-;; (("Lula" . 1) ("Fernando Henrique Cardoso" . 1) ("PT" . 4) ("secretaria municipal de zoologia" . 0))
-|#
-(let* ((raw-sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
+(get-entids-from-entrec '((20 11 1) (21 7 3))) ; (21 20)
+(count-and-remove 1 (list 1 52 26 73 1 0)) ; 2 (0 73 26 52)
+(count-and-remove -88 (list 1 52 26 73 1 0)) ; (0 1...)
+(count-and-remove-entity 1 (list 1 284 1 393 0 -1))
+                                        ; ((1 . 2)) (-1 0 393 284)
+(count-and-remove-entities (list 1 2 3 4 -1 1 8 -1 -1 3))
+               ;; ((8 . 1) (4 . 1) (-1 . 3) (2 . 1) (3 . 2) (1 . 2))
+(let* ((raw-sents (cl-conllu:read-file
+                   #p"~/git/query-conllu/CF1.conllu"))
        (token-sents (cons-tokens-from-sentences raw-sents))
        (form-sents (forms-from-sentences token-sents))
        (char-sents (chars-from-sentences token-sents))
@@ -179,4 +199,5 @@ paired."
   ents
   rec-entities
   (visualize-entities-and-sentences form-sents (reverse rec-entities) raw-ents)
-  )
+  (viz-count raw-ents (count-and-remove-entities
+                       (get-entids-from-entrecs rec-entities))))
