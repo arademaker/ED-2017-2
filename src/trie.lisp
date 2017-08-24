@@ -14,6 +14,12 @@
 
 ;;
 ;; input
+(defun read-entities (filepath)
+  (with-open-file (stream filepath)
+    (loop for line = (read-line stream nil)
+       while line
+       collect line)))
+
 (defun str-to-char (string)
   (coerce string 'list))
 
@@ -26,14 +32,18 @@
   (remove-separator (str-to-char (string-trim '(#\space #\tab) string))
                     separator))
 
-(defun read-entities (filepath &optional (separator #\space))
+(defun process-entities (entities &key (separator #\space)
+                                    processed-entities
+                                    (id 0))
   "return (ent-id . entity), where entity = list of characters minus
 separator"
-  (with-open-file (stream filepath)
-    (loop for line = (read-line stream nil)
-       for ix from 0
-       while line
-       collect (cons ix (process-string line separator)))))
+  (if (endp entities)
+      processed-entities
+      (process-entities
+       (rest entities) :separator separator :id (1+ id)
+       :processed-entities (acons id (process-string (first entities)
+                                                    separator)
+                                  processed-entities))))
 
 ;;
 ;; search
