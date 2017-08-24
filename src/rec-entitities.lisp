@@ -1,55 +1,30 @@
 ;; authors: bruno cuconato (@odanoburu)
 ;; placed in the public domain.
 
-;; resolver pontuação.
-;; mudar trie para colocar em is-leaf? o id da entitidade.
+;; encontrar submatches tb
 ;; transformar em função geradora
+
 
 (ql:quickload :cl-conllu)
 (compile-file #p"~/git/ed-2017-2/src/trie.lisp")
 (load #p"~/git/ed-2017-2/src/trie.fasl")
 
-#|;;not used
-(defun make-entities(&optional entities)
-  #'(lambda (cmd &optional entity)
-      (ecase cmd
-        (:push (push entity entities))
-        (:get entities))))
-
-(defun entities-push (entities entity)
-  (funcall entities :push entity))
-
-(defun entities-get (entities)
-  (funcall entities :get))
-|#
-
-;; process entities: join names, add them to entities-found, do things
-;; to them
-
-(defun unwind-entity (entity start end &optional entities)
+;;
+;; recognize entities
+(defun unwind-entity (entity start size &optional entities)
   (unless entity
     (return-from unwind-entity entities))
   (let ((ent-id (trie-is-leaf? (first entity))))
-    (if ent-id
-        (unwind-entity (rest entity) start (1- end)
-                       (acons ent-id (list start end) entities))
-        (unwind-entity (rest entity) start (1- end)))))
+    (if (numberp ent-id)
+        (unwind-entity (rest entity) start (1- size)
+                       (acons ent-id (list start size) entities))
+        (unwind-entity (rest entity) start (1- size) entities))))
 
-
+;;
 ;; recognize entities
-
 (defun token-in-trie? (trie token)
-  "checks if token is in trie, if it is, sees if it is followed by a
-space and returns the space node, else returns the node. if it's not
-in trie returns nil"
-  (let ((trie-node (partially-in-trie?node trie token)))
-    (when trie-node
-	(let* ((children (trie-children trie-node))
-	       (space (find #\space children :key #'trie-value)))
-	  (if space
-	      (values space token)
-	      (when (trie-is-leaf? trie-node)
-		(values trie-node token)))))))
+  "return trie-leaf if token is leaf in trie."
+  (partially-in-trie? trie token))
 
 (defun aux-recognize-ents-in-sentence (trie token-list
                                        &key entity (iter 0))
@@ -59,7 +34,7 @@ in trie returns nil"
   (let ((trie-node (token-in-trie? trie (first token-list))))
     (cond ((and (null entity)
 		(null trie-node))
-	   (values (rest token-list) nil iter))
+	   (values (rest token-list) nil (1+ iter)))
 	  ((and (null trie-node) entity)
 	   (values token-list entity iter))
 ;; not (rest token-list) to give tk a fresh chance, but will only give
@@ -88,9 +63,8 @@ in trie returns nil"
                                             entities)
                                     :start (+ start iter)))))
 
-
+;;
 ;; entry point
-
 (defun recognize-ents-in-sentences (trie sentences
                                     &key entities (sentid 0))
   "take trie and list of sentences (list of tokens), return sentid
@@ -99,16 +73,40 @@ with entities recognized in index ix (entity . ix)"
       entities
       (let ((entities-in-sent (recognize-ents-in-sentence
                                trie (first sentences))))
-        (recognize-ents-in-sentences trie
-                                     (rest sentences)
-                                     :entities (acons
-                                                sentid
-                                                entitites-in-sent
-                                                entities)
+        (recognize-ents-in-sentences trie (rest sentences)
+                                     :entities (acons sentid
+                                                      entities-in-sent
+                                                      entities)
                                      :sentid (1+ sentid)))))
 
-;; count entities (remove is for better performance)
+;;
+;; visualization
+(defun get-entities (entities entids &optional entities-found)
+  "get entities' names from entity ids."
+  (if (endp entids)
+      entities-found
+      (get-entities entities (rest entids)
+                    (cons (nth (caar entids) entities)
+                          entities-found))))
 
+(defun visualize-entities-and-sentences (sentences rec-entities
+                                         entities &optional viz)
+  "useful for debugging. assumes sentences and rec-entities are
+paired."
+  (if (endp sentences)
+      viz
+      (let* ((entids-in-sent (cdar rec-entities))
+             (ents-in-sent (get-entities entities entids-in-sent))
+             (sent (first sentences)))
+        (visualize-entities-and-sentences (rest sentences)
+                                          (rest rec-entities)
+                                          entities
+                                          (acons ents-in-sent
+                                                 sent
+                                                 viz)))))
+
+;;
+;; count entities (remove is for better performance)
 (defun count-and-remove (entity entities-found
 			 &key (predicate #'string=)
 			   (count 0) filtered-entities)
@@ -146,7 +144,9 @@ with entities recognized in index ix (entity . ix)"
 				   :predicate predicate
 				   :entity-count new-entity-count))))
 
+;;
 ;; tests
+#|
 (join-words '("silva" "da" "lula")) ; "lula da silva"
 (count-and-remove 1 (list 1 52 26 73 1 0) :predicate #'=) ; 2 (0 73 26 52)
 (count-and-remove -88 (list 1 52 26 73 1 0) :predicate #'=) ; 0 (0 1...)
@@ -156,9 +156,27 @@ with entities recognized in index ix (entity . ix)"
 			   (list 1 2 3 4 -1 1 8 -1 -1 3)
 			   :predicate #'=) ;((-1 . 3) ((1 . 2))
 (let* ((sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
-       (ents (read-file "~/git/ed-2017-2/src/entities.txt"))
+       (ents (read-entities #p"~/git/ed-2017-2/src/entities.txt"))
        (trie (start-trie ents)))
   (reset-entities)
   (recognize-ents-in-sentences trie sents)
   (count-and-remove-entities ents (show-entities)))
 ;; (("Lula" . 1) ("Fernando Henrique Cardoso" . 1) ("PT" . 4) ("secretaria municipal de zoologia" . 0))
+|#
+(let* ((raw-sents (cl-conllu:read-file #p"~/git/query-conllu/CF1.conllu"))
+       (token-sents (cons-tokens-from-sentences raw-sents))
+       (form-sents (forms-from-sentences token-sents))
+       (char-sents (chars-from-sentences token-sents))
+       (raw-ents (read-entities #p"~/git/ed-2017-2/src/entities.txt"))
+       (ents (process-entities raw-ents))
+       (trie (start-trie ents))
+       (rec-entities (recognize-ents-in-sentences trie char-sents)))
+  raw-sents
+  token-sents
+  form-sents
+  char-sents
+  raw-ents
+  ents
+  rec-entities
+  (visualize-entities-and-sentences form-sents (reverse rec-entities) raw-ents)
+  )
