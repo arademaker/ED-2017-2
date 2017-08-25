@@ -1,0 +1,12 @@
+﻿#+Title: Aula 11
+
+> 2017-08-22
+
+- Avaliação sobre o algoritmo enviado por email
+- Algoritmos relacionados ao projeto que possam nos ajudar a resolvê-lo.
+- Greedy algorithms:
+	- Interval Scheduling: agendar o número máximo de jobs desde que não haja interseção no tempo de ocorrência.
+	- Scheduling All Intervals: agendar todas as aulas no menor número de salas possíveis
+
+### Dever de casa:
+- Programar um dos três algoritmos conforme link enviado para o grupo 

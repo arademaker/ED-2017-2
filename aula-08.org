@@ -1,8 +1,38 @@
-#+Title: Aula 08
+﻿#+Title: Aula 08
 
-Próxima aula. 
+> 2017-08-01
+> 
 
-1. Terminar cap 3.
-2. Cap 4.
-3. Discussões projeto
+## Observações Início da Aula:
 
+- Teste possivelmente aula que vem (até cap3)
+- Participar mais. Buscar diferentes formas de contribuir e assim ajudar na própria avaliação.
+- Usar a lista de email para discussões da lista (tirar dúvidas etc)
+
+## Discussão do projeto
+
+Linguagem de query
+
+- Implementar inicialmente uma estrutura de query simples 
+
+- Trabalhar com listas de Tokens(funções recebem e retornam listas de tokens, para concatenação de operadores)
+
+- Convenção sobre qual vai ser o HEAD pro outro etc...
+
+- Desafio de performance do algoritmo. Se implementarmos os tokens em formato de lista já é ruim porque uma busca seria $O(n)$ ( lemma ~"correr")
+
+- ordem das queries pode otimizar bastante a busca ex:
+        
+         (and (upstag ~ "VERB) (lemma ~ "VERB))
+
+- Talvez usar estrutura de grafos.
+    
+    1 nó para cada sentença, mais nós para cada token da sentença (tipo de token - ex: apenas um nó chamado NOME e todo mundo que é nome estaria conectado à ele pela aresta upostag. Ou um nó VERB e todo mundo que é verbo se ligar a ele)
+
+## Problema 2: 
+
+reconhecimento de entidades (pessoas e organizações), com lista de entidades esperadas
+
+- Solução 1 - Autômato finito determinístico
+
+    - [[autômatos finitos]](https://www.cs.rochester.edu/~nelson/courses/csc_173/fa/fa.html) [[wikipedia]](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)
