@@ -8,8 +8,6 @@
 (ql:quickload :cl-conllu)
 (compile-file #p"~/git/ed-2017-2/src/trie.lisp")
 (load #p"~/git/ed-2017-2/src/trie.fasl")
-(compile-file #p"~/git/ed-2017-2/src/rec-conllu.lisp")
-(load #p"~/git/ed-2017-2/src/rec-conllu.fasl")
 
 ;;
 ;; recognize entities
@@ -182,22 +180,4 @@ paired."
                                         ; ((1 . 2)) (-1 0 393 284)
 (count-and-remove-entities (list 1 2 3 4 -1 1 8 -1 -1 3))
                ;; ((8 . 1) (4 . 1) (-1 . 3) (2 . 1) (3 . 2) (1 . 2))
-(let* ((raw-sents (cl-conllu:read-file
-                   #p"~/git/query-conllu/CF1.conllu"))
-       (token-sents (cons-tokens-from-sentences raw-sents))
-       (form-sents (forms-from-sentences token-sents))
-       (char-sents (chars-from-sentences token-sents))
-       (raw-ents (read-entities #p"~/git/ed-2017-2/src/entities.txt"))
-       (ents (process-entities raw-ents))
-       (trie (start-trie ents))
-       (rec-entities (recognize-ents-in-sentences trie char-sents)))
-  raw-sents
-  token-sents
-  form-sents
-  char-sents
-  raw-ents
-  ents
-  rec-entities
-  (visualize-entities-and-sentences form-sents (reverse rec-entities) raw-ents)
-  (viz-count raw-ents (count-and-remove-entities
-                       (get-entids-from-entrecs rec-entities))))
+
