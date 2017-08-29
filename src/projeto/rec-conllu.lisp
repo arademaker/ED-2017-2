@@ -7,6 +7,10 @@
 ;; necessary. sentence lists can be lists of lists of chars for input
 ;; to rec-entities.lisp, or lists of strings for human consumption.
 
+;; use (dir-recognize-entities (dir-path entities-path)) to recognize
+;; entities in all *.conllu files in a given directory, using the
+;; entity list at entities-path.
+
 ;; in the end of the file there are examples of entity recognition and
 ;; count in conllu files.
 
