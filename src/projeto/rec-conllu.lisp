@@ -7,17 +7,23 @@
 ;; necessary. sentence lists can be lists of lists of chars for input
 ;; to rec-entities.lisp, or lists of strings for human consumption.
 
+;; use (dir-recognize-entities (dir-path entities-path)) to recognize
+;; entities in all *.conllu files in a given directory, using the
+;; entity list at entities-path.
+
 ;; in the end of the file there are examples of entity recognition and
 ;; count in conllu files.
 
 
 (ql:quickload :cl-conllu)
-(load (compile-file #p"trie.lisp"))
-(load (compile-file #p"rec-entities.lisp"))
+(load (compile-file
+       #P"/home/bruno/git/ed-2017-2/src/projeto/trie.lisp"))
+(load (compile-file
+       #P"/home/bruno/git/ed-2017-2/src/projeto/rec-entities.lisp"))
 
 
 ;;
-;; pre-processing
+;; from sentences to list of strings
 (defun get-token-form (token)
   (etypecase token
     (cl-conllu:token (cl-conllu:token-form token))
@@ -83,6 +89,47 @@ mtokens: (pt em o governo) -> (pt no governo)"
 (defun chars-from-sentences (sentences)
   (mapcar #'chars-from-sentence sentences))
 
+
+;;
+;; reading
+(defun conllu-in-directory (dir-path)
+  "return list of all .conllu files in a directory"
+  (let ((wild-path (merge-pathnames dir-path
+                                    (parse-namestring "*.conllu"))))
+    (directory wild-path)))
+
+(defun chars-in-file (filepath)
+  "read conllu file and return lists of chars for each sentence."
+  (let* ((raw-sents (cl-conllu:read-file filepath))
+        (token-sents (cons-tokens-from-sentences raw-sents))
+        (char-sents (chars-from-sentences token-sents)))
+    char-sents))
+
+(defun trie-from-entities (path)
+  (let* ((raw-ents (read-entities path))
+        (ents (process-entities raw-ents))
+        (trie (start-trie ents)))
+    (values trie ents)))
+
+(defun aux-dir-recognize-entities (trie file-paths &optional entities)
+  (if (endp file-paths)
+      entities
+      (let* ((file-path (first file-paths))
+             (file-id (file-namestring file-path))
+             (chars-sents (chars-in-file file-path))
+             (sent-entities (recognize-ents-in-sentences trie
+                                                         chars-sents)))
+        (aux-dir-recognize-entities trie (rest file-paths)
+                                    (acons file-id sent-entities
+                                           entities)))))
+
+(defun dir-recognize-entities (dir-path entities-path)
+  "recognize entities in all .conllu files in a directory. (this reads
+one file at time, which prevents stack overflow."
+  (multiple-value-bind (trie *) (trie-from-entities entities-path)
+    (let ((file-paths (conllu-in-directory dir-path)))
+      (aux-dir-recognize-entities trie file-paths))))
+      
 ;;
 ;; tests
 (let* ((raw-sents (cl-conllu:read-file
