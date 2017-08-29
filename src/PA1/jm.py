@@ -26,9 +26,10 @@
 # [TIP: before submitting, first test the correctness of your program on
 # some small test files or your own devising. Then post your best test
 # cases to the discussion forums to help your fellow students!]
+# 
 
-inv = 0
 
+inv=0
 def merge(p1, p2):
         global inv 
         array=[]
@@ -69,10 +70,17 @@ def buildListFromFile(filename):
     return intList
 
 
-array = buildListFromFile('IntegerArray.txt')
-array = list(array)
+
+
+array=buildListFromFile('IntegerArray.txt')
+array=list(array)
+
+
+
 
 len(array)
+
+
 
 print(mergesort(array)[:10])
 print(inv)
