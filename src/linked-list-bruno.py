@@ -4,7 +4,6 @@ placed in the public domain.
 """
 
 class cons:
-    """"""
     def __init__(self, car, cdr=None):
         if car is None:
             self.car = []

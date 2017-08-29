@@ -1,6 +1,8 @@
+# Sombra
+
 def sort(vn):
-  minimum, maximum = min(vn),max(vn)
-  m = (maximum-minimum)
+  minimum, maximum = min(vn), max(vn)
+  m = (maximum - minimum)
   vm = (m+1)*[0]
   
   for it in vn:
