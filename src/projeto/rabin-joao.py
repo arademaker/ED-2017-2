@@ -86,9 +86,10 @@ resultado = (rabin_karp_multiple(["Renato", "Aranha", 'Marcos', 'Sombra', "Renat
 (rabin_karp_multiple(["Joao", "Daniel", 'Lucas', 'Aranha'],
                      "Renato Aranha , Marcos fizeram o trabalho do Duda com ajuda do Sombra. Renato Aranha"))
 
-new = search_on_list(["Renato", "Aranha", 'Marcos', 'Sombra', "Renato Aranha"], 
+out = search_on_list(["Renato", "Aranha", 'Marcos', 'Sombra', "Renato Aranha"], 
                      ["Renato Aranha , Marcos fizeram o trabalho de SRI com ajuda do Sombra.", 
                       "Renato Aranha e Sombra estavam conversando",'alguns marcos são relvantes',
                       "Marcos vai dormir tarde",'Sombra veio do IME'])
 
-new
+print(out)
+
