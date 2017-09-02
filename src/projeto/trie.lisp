@@ -94,7 +94,7 @@ separator"
 (defun leaf-in-trie? (trie chars)
   "return nil or trie-leaf."
   (let ((trie-node (partially-in-trie? trie chars)))
-    (when (trie-is-leaf? trie-node)
+    (when (and trie-node (trie-is-leaf? trie-node))
         trie-node)))
 
 (defun str-in-trie? (trie string &optional (separator #\space))
@@ -138,7 +138,7 @@ separator"
 ;;
 ;; tests
 
-(let* ((raw-ents (read-entities #p"/home/bruno/git/ed-2017-2/src/entities.txt"))
+(let* ((raw-ents (read-entities #p"entities.txt"))
        (ents (process-entities raw-ents))
        (test-trie (start-trie ents)))
   (trie-is-leaf? test-trie) ; nil
