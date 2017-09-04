@@ -1,4 +1,4 @@
-'''
+﻿'''
 Rabin Karp
 '''
 
@@ -39,19 +39,21 @@ def rk_aux(word, text):
     word_hash = RollingHash(word, len(word))
     #word_hash.move_window()
     cc = 0
+    ttu = 0
     for i in range(len(text) - len(word) + 1):
         if rolling_hash.hash == word_hash.hash:
             if rolling_hash.window_text() == word:
                 cc = cc + 1
+                ttu = i
         rolling_hash.move_window()
     if not cc:
         return None
-    return cc
+    return cc,ttu
 
 
 '''
 Input: words - variavel do tipo list - palavras/entidades a serem buscadas
-       texts - variavel do tipo list - com textos onde as words serão procuradas
+       texts - variavel do tipo list - com textos onde as words serÃ£o procuradas
 Output: 'texto:', num ,'- palavra:', a palavra ,'- quantidade:', num de vezes que aconteceu
 
 '''
@@ -61,8 +63,10 @@ def rabin_karp(words,texts):
         return None
     for ii in range(len(words)):
         for jj in range(len(texts)):
-            if rk_aux(words[ii],texts[jj]) != None:
-                print('texto:',str(jj),'- palavra:',str(words[ii]),'- quantidade:',str(rk_aux(words[ii],texts[jj])))
+            iio = rk_aux(words[ii],texts[jj])
+            if iio != None:
+                print('texto:',str(jj),'- palavra:',str(words[ii]),str(ii),'- token sentenca:',
+                      str(iio[1]))
 
 
 TEXTOS = ["Joao Marcos foi a praia no sabado","Apesar da chuva Julio Cesar saiu e foi ver Bruno.Julio Cesar e Bruno sao loucos",
@@ -82,3 +86,12 @@ PALAVRAS = ["Julio Cesar de azevedo vieira","Joao da silva sauro","Joao Marcos d
 
 
 rabin_karp(PALAVRAS,TEXTOS)
+
+'''
+sentencas do projeto
+'''
+
+with open('src/projeto/sentences.txt', encoding="utf8") as inputfile:
+    results = list(inputfile)
+    
+rabin_karp(['Lula','José',"Alexandre","FHC","Salomé","Nielsen","Gazeta"],results)
