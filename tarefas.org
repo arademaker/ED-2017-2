@@ -11,6 +11,7 @@ Entregas:
 - João Marcos
 - Julio Vieira
 - Graziele dos Santos Cerqueira
+- Matheus de Oliveira
 
 * Lista 2
 
@@ -20,6 +21,7 @@ Entregas:
 Entregas:
 
 - Bruno Cuconato
+- Matheus de Oliveira
 
 * Lista 3
 
@@ -30,6 +32,7 @@ Entregas:
 - Bruno Cuconato
 - Julio Vieira
 - Graziele Dos Santos Cerqueira
+- Matheus de Oliveira
 
 * Programming Assigments 
 
@@ -43,5 +46,6 @@ Entregas:
 - Bruno Cuconato
 - Graziele Dos Santos Cerqueira (E)
 - Julio Vieira
+- Matheus de Oliveira
 
 
