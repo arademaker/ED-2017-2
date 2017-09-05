@@ -1,0 +1,37 @@
+﻿#+Title: Aula 09
+
+Em 2017-08-08
+
+* Projeto
+
+Atualizações
+
+- Feito protótipo da função de query (por Henrique)
+
+** Possibilidades de melhora no projeto
+
+- Otimização com listas vazias
+    - Fazer "and", "or", etc recebendo mais de dois argumentos (não binários)
+- O equivalente ao underscore ("_") qualquer valor (tipo um .*) 
+    - pega a lista de tokens e devolve a propria lista de tokens
+- Implementar uma funcionalidade que retornar o TOKEN também, não
+  apenas a sentença ( talvez mexer no remove-if-not)
+- Otimizar função eval-query pois (num AND) quando a primeira
+  avaliação é NIL continua avaliando as demais e pode ter uma parada
+    - Dica: se a primeira avaliação é NIL pula pra próxima sentença
+- Implementar o operador Sequência (seq)
+    - (seq (lemma "universidade") (lemma "católica"))
+    - Vai retornar todos os tokens que o tem como lemma "universidade"
+      e são seguidos por um token de lemma "católica" ou o contrário?
+      Convenção
+- eval-query é avaliada pra cada sentença, e não uma única vez
+- adicionar testes
+
+** Projeto 2
+
+- Sem usar biblioteca pensar em como implementar essas estruturas
+
+- Como pegar o arquivo, ir lendo e construindo a estrutura de árvore
+
+    - Qual a diferença em complexidade teórica de ir sentença por
+      sentença e buscando na árvore do arquivo ou o contrário..

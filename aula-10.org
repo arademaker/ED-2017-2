@@ -1,0 +1,44 @@
+﻿#+Title: Aula 10
+
+Em 2017-08-15
+
+* Formas diferentes de atingir niveis do grafo
+
+- mesma complexidade para DFS e BFS
+
+- DFS: Ir até o caminho mais longe possível pra construir o grafo
+    - pode cair num loop infinito (e.g., jogo de xadrez)
+
+- BFS: descobre o grafo em camadas, identifica paths (e o menor caminho possível!)
+    - maior consumo de memória
+    - mais fácil de controlar a parada
+    - não leva em conta pesos das arestas ao procurar o menor caminho
+
+- pilha (last in, first out) - recursivo
+- fila (first in, first out) - iteração
+
+- Dijkstra: menor caminho entre ao percorer um grafo
+
+    - Complexidade: $O((|V | + |E|)\log |V |)$.
+    - Falha: arestas com valor negativas
+
+- Bellman-Ford: Computa (update) a distância pra todas as arestas - 1
+  (habil para grafos com arestas negativas)
+    - Complexidade: $O(|V| |E|)$
+
+* Projeto
+
+- Algoritmo do nome: 
+    - retornar a quantidade de vezes que ocorreu
+    - não marcar qnd o nome não estiver na lista, mas tem o mesmo
+      prefixo (e.g., Alexandre Silva não tem na lista, mas tem
+      Alexandre)
+
+* Dever de casa
+
+- DAG -> Número de linearizações possíveis 
+    - (ref [[http://www.geeksforgeeks.org/all-topological-sorts-of-a-directed-acyclic-graph/][implementação]])
+    - Ref paper que mostra que é um problema não trivial (#P-
+      complete) : http://dl.acm.org/citation.cfm?id=103441
+- DFS -> Stack
+- 4 exs a serem escolhidos pelo professor
