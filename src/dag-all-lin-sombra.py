@@ -1,4 +1,10 @@
-#JEITO MELHOR: O(n!)
+#Antonio Luis Sombra de Medeiros
+
+#Algoritmo de exibição de TODAS as linearizações de um grafo
+
+#Estrutura usadas na entrada: proximo_no (lista de vizinhos que identifica o grafo)
+
+#Complexidade: O(n!)
 
 from collections import defaultdict as dd
 from random import choice, shuffle
@@ -54,7 +60,7 @@ print('TOTAL: ', len(resp))
 
 
 '''
-All topological sorts of the given graph are:
+Todas as linearizações do grafo dado são:
 4 5 0 2 3 1 
 4 5 2 0 3 1 
 4 5 2 3 0 1 

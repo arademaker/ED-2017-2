@@ -1,3 +1,9 @@
+#Antonio Luis Sombra de Medeiros
+#Linearização de um DAG
+
+#Entrada:  proximo_no (lista de vizinhos)
+#SAÍDA : Uma linearização aleatória do grafo
+
 from collections import defaultdict as dd
 from random import choice, shuffle
 

@@ -1,3 +1,6 @@
+# Antonio Luis Sombra de Medeiros 
+
+#Ex. 2.17 - Papadimitriou
 
 # In our median-finding algorithm (Section 2.4), a basic primitive is
 # the split operation, which takes as input an array S and a value v
@@ -29,5 +32,9 @@ def f(vet,val):
       k += 1
 
 v = [1,5,3,1,2,-7,1,5,6,8,1]
+print("Test Example: ")
+print("vetor = ", v)
+print()
+print("Solution: ")
 f(v,1)
 print(v)
