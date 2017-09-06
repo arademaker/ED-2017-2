@@ -274,7 +274,7 @@ adjacent to it."
   (setf (node-pre node) reset-value)
   (setf (node-post node) reset-value))
 
-(defun reset-nodes-pre-post (graph &key reset-value)
+(defun reset-nodes-pre-post (graph &key (reset-value 0))
   (dolist (node graph)
     (reset-node-pre-post node :reset-value reset-value)))
 
