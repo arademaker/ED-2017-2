@@ -1,6 +1,72 @@
-#+Title: Aula 04
+﻿#+Title: Aula 04
 
-http://bit.ly/2ua89sy
+- revisão de lista encadeada/vetor
 
+## inserindo e appending elementos em arrays e listas encadeadas
 
+### python
+
+```python
+#só funciona no ipython!!
+In [1]: nums = [x for x in range(0, 1000000)]
+
+In [2]: %timeit nums.append(1)
+391 ns ± 16.2 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
+
+In [3]: %timeit nums.insert(0, 2)
+34.4 ms ± 1.59 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+```
+
+### common lisp
+
+```
+(let ((a (make-array 10000000000 :initial-element 1)))
+ (time (aref a 10000)))
+
+(let ((a (loop for x from 0 to 1000000000 collect 1)))
+	(time (nth 10000 a)))
+
+(let ((a (loop for x from 0 to 1000000000 collect 1)))
+	(time (nth 10000 a)))
+```
+
+## acessando n-ésimo elemento
+
+### common lisp
+```
+;; recursive solution
+(defun mynth (k alist)
+	(if (equal k 0)
+	(car alist)
+(mynth (-k 1) (cdr alist))))
+
+;; iterative solution
+(defun mynth (k alist)
+	(let ((tmp alist)
+	 (dotimes (v k (car tmp))
+          (setif tmp (cdr tmp))))))
+```
+
+### python
+
+[recursiva e iterativa](https://github.com/odanoburu/ED-2017-2/blob/master/lista-encadeada.py)
+
+## cuidado na estimação de O(⋅)
+
+- operações aritméticas não são O(1), dependem do tamanho dos números
+
+- word length do processador
+
+- multiplicação de françois, multiplicação de gauss, multiplicação de nome-japonês
+    - françois ainda é $O(n^2)$
+    - gauss é $< O(n^2)$
+        x e y com n (par) de bits. divido os dois "pela metade": $x = 2^\frac{n}{2} x_l + x_r$ (análogo à $1234 = 12 \cdot 10^2 + 34$). fazendo $xy = 2^\frac{n}{2}x_ly_l + 2^\frac{n}{2} (x_l y_l + x_r y_r) + x_r y_r$
+        
+        **(terminar explicação)**
+        
+## Referências
+
+Resolução de Recorrências - Técnicas: http://www.bowdoin.edu/~ltoma/teaching/cs231/fall07/Lectures/reccurences.pdf
+[Purely Functional Data Structures]
+(https://www.amazon.com/Purely-Functional-Structures-Chris-Okasaki/dp/0521663504)
 

@@ -1,0 +1,104 @@
+﻿#+Title: Aula 11
+
+* Part 1
+
+#+BEGIN_SRC lisp
+  (with-open-file (in #P"pessoa-individuo.txt")
+    (let ((names (loop for line = (read-line in nil nil)
+		       while line
+		       collect (string-trim '(#\Space #\Tab) line)))
+	  (sents (mapcar (lambda (sent) (sentence-meta-value sent "text"))
+			 (loop for file in (directory #P"udp/21*.conllu")
+			       append (cl-conllu:read-conllu file)))))
+      (time (loop for n in names
+		  for v = (remove-if-not (lambda (sent) (search n sent :test #'equal))
+					 sents)
+		  when v
+		  collect (list n (length v))))))
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+Evaluation took:
+  104.748 seconds of real time
+  102.986898 seconds of total run time (101.981225 user, 1.005673 system)
+  98.32% CPU
+  367,037,421,684 processor cycles
+  658,576 bytes consed
+#+END_EXAMPLE
+
+472 nomes dos 9968 foram encontrados no sample de 111 dos 7683
+arquivos do corpus. Isto é, ~4% dos nomes da lista em ~1% dos
+arquivos!
+
+Qual a complexidade da função acima?
+
+* Part 2
+
+https://en.wikipedia.org/wiki/String_searching_algorithm#Index_methods
+
+Explique o que aprendemos disso?
+
+#+BEGIN_EXAMPLE
+time grep -o -f ~/work/cpdoc/dhbb/dic/pessoa-individuo.txt *.sents > nomes.txt
+
+real	664m42.713s
+user	149m22.137s
+sys	0m49.864s
+#+END_EXAMPLE
+
+* Part 3
+
+A biblioteca http://clstringmatch.sourceforge.net implementa
+https://en.wikipedia.org/wiki/Aho–Corasick_algorithm que parece ser
+bem o que queremos. Mas embora strings sejam sequências de caracteres
+e sentenças sequências de listas de strings (lista de words), os
+algoritmos não são tão flexíveis para usarmos com listas de
+strings. Uma pena, porque o search do Lisp é
+
+#+BEGIN_EXAMPLE
+CL-USER> (search '("A" "B") '("C" "D" "A" "B" "D") :test #'equal)
+2
+CL-USER> (search "AB" "CDABD" :test #'equal)
+2
+#+END_EXAMPLE
+
+De qq modo, realmente é bem eficiente
+
+#+BEGIN_SRC lisp
+  (labels ((prep (alist)
+	     (mapcar (lambda (l) (format nil "~{~a~^ ~}" l)) alist)))
+    (let ((pat (cl-string-match:initialize-ac (prep (names)))))
+      (time (dolist (s (prep (sentences)))
+	      (let ((sol (cl-string-match:search-ac pat s)))
+		(if sol (format t "~a ~%~%" (subseq s sol))))))))
+#+END_SRC
+
+A busca ocorre em 2 sec para 111 arquivos.
+
+o problema, como dito acima, é que os algoritmos são muito pouco
+flexíveis. A função 'search-ac' só retorna o primeiro match e a
+posição do pattern na lista de patterns criados no trie. No caso
+abaixo, ela retorna 22 e 8246 (posição do `Pedro Aleixo` na lista de
+nomes).
+
+#+BEGIN_SRC lisp
+  (labels ((prep (alist)
+	     (mapcar (lambda (l) (format nil "~{~a~^ ~}" l)) alist)))
+    (let ((pat (cl-string-match:initialize-ac (prep (names)))))
+      (cl-string-match:search-ac pat "Alexandre Rademaker e Pedro Aleixo e Paulo Vidal")))
+#+END_SRC
+
+
+
+
+> 2017-08-22
+
+- Avaliação sobre o algoritmo enviado por email
+- Algoritmos relacionados ao projeto que possam nos ajudar a resolvê-lo.
+- Greedy algorithms:
+	- Interval Scheduling: agendar o número máximo de jobs desde que não haja interseção no tempo de ocorrência.
+	- Scheduling All Intervals: agendar todas as aulas no menor número de salas possíveis
+
+### Dever de casa:
+- Programar um dos três algoritmos conforme link enviado para o grupo 
+
