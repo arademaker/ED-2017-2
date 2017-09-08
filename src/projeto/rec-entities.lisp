@@ -34,7 +34,7 @@
 
 
 (ql:quickload :cl-conllu)
-(load (compile-file #p"trie.lisp"))
+(load (compile-file #p"~/git/ed-2017-2/src/projeto/trie.lisp"))
 
 ;;
 ;; recognize entities
@@ -201,6 +201,7 @@ paired."
 
 ;;
 ;; tests
+#|
 (get-entids-from-entrec '((20 11 1) (21 7 3))) ; (21 20)
 (count-and-remove 1 (list 1 52 26 73 1 0)) ; 2 (0 73 26 52)
 (count-and-remove -88 (list 1 52 26 73 1 0)) ; (0 1...)
@@ -209,3 +210,4 @@ paired."
 (count-entities (list 1 2 3 4 -1 1 8 -1 -1 3))
                ;; ((8 . 1) (4 . 1) (-1 . 3) (2 . 1) (3 . 2) (1 . 2))
 
+|#

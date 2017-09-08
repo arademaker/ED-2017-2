@@ -17,9 +17,7 @@
 
 (ql:quickload :cl-conllu)
 (load (compile-file
-       #P"/home/bruno/git/ed-2017-2/src/projeto/trie.lisp"))
-(load (compile-file
-       #P"/home/bruno/git/ed-2017-2/src/projeto/rec-entities.lisp"))
+       #P"~/git/ed-2017-2/src/projeto/rec-entities.lisp"))
 
 
 ;;
@@ -132,6 +130,7 @@ one file at time, which prevents stack overflow."
       
 ;;
 ;; tests
+#|
 (let* ((raw-sents (cl-conllu:read-file
                    #p"~/git/query-conllu/CF1.conllu"))
        (token-sents (cons-tokens-from-sentences raw-sents))
@@ -151,3 +150,4 @@ one file at time, which prevents stack overflow."
   (visualize-entities-and-sentences form-sents (reverse rec-entities) raw-ents)
   (viz-count raw-ents (count-entities
                        (get-entids-from-entrecs rec-entities))))
+|#

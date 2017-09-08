@@ -137,8 +137,8 @@ separator"
 
 ;;
 ;; tests
-
-(let* ((raw-ents (read-entities #p"/home/bruno/git/ed-2017-2/src/entities.txt"))
+#|
+(let* ((raw-ents (read-entities #p"entities.txt"))
        (ents (process-entities raw-ents))
        (test-trie (start-trie ents)))
   (trie-is-leaf? test-trie) ; nil
@@ -149,3 +149,4 @@ separator"
   (str-in-trie? test-trie "amanda silva") ; |a| leaf
   (str-in-trie? test-trie "amanda silvan") ; nil
   )
+|#
