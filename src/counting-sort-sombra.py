@@ -1,4 +1,10 @@
-# Sombra
+# Antônio Luís Sombra de Medeiros - Ex. 2.20 - Papadimitriou
+
+# takes an array of integers and sorts them. the process is done in
+# three steps:
+# 1. count the numbers of each integer;
+# 2. count how many elements are less than each integer;
+# 3. fill up sorted vector with this info.
 
 def sort(vn):
   minimum, maximum = min(vn), max(vn)
@@ -10,10 +16,18 @@ def sort(vn):
   
   p = 0
   for val, freq in enumerate(vm,minimum):
-    for _ in xrange(freq):
+    for _ in range(freq):
       vn[p] = val
       p += 1
 
 vn = [1,3,5,1,2,1]
+
+
+print("Test example: ")
+
+print("vet = ", vn)
+
 sort(vn)
-print(vn)
+
+print("Resposta: ", vn)
+

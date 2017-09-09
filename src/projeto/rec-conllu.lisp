@@ -22,11 +22,7 @@
 (ql:quickload :cl-conllu)
 (ql:quickload :alexandria)
 
-(load (compile-file
-       #P"trie.lisp"))
-(load (compile-file
-       #P"rec-entities.lisp"))
-
+(load (compile-file #P"~/git/ed-2017-2/src/projeto/rec-entities.lisp"))
 
 ;;
 ;; from sentences to list of strings
@@ -148,6 +144,7 @@ one file at time, which prevents stack overflow."
       
 ;;
 ;; tests
+#|
 (let* ((raw-sents (cl-conllu:read-file
                    #p"/home/bruno/docs/dhbb-sample/2.conllu"))
        (token-sents (cons-tokens-from-sentences raw-sents))
@@ -167,3 +164,4 @@ one file at time, which prevents stack overflow."
   (visualize-entities-and-sentences form-sents (reverse rec-entities) raw-ents)
   (viz-count raw-ents (count-entities
                        (get-entids-from-entrecs rec-entities))))
+|#

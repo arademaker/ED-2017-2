@@ -1,0 +1,35 @@
+﻿#+Title: aula-12
+
+Em 2017-08-29
+
+- Apresentação de funções e programas já pedidos
+
+* Dynamic programming:
+
+- Edit distance: qual a menor distancia de edição de uma string a
+  outra string, ou seja, o quão próxima uma palavra é da outra
+    - Operações possíveis:
+        - Adição: por string onde não tem
+        - Troca: mudar a posição de uma string de forma a se
+          assemelhar mais a outra
+        - Remoção: tirar string que não haja match 
+
+
+E(i,j) = min\{ 1 + E(i-1,j), 1 + E(i,j-1), diff(i,j) + E(i-1,j - 1)
+
+em que $diff(i,j) = \mbox{se  } x[i] = y[i] \mbox{ ou } 1 \mbox{ cc}$
+
+- Forma de subdividir segundo a formula acima:
+        - alinhar prefixos
+        - discartar a ultima da palavra i
+        - descartar a ultima da palavra j
+-  Complexidade: $O(n m)$ 
+    -  Quadrático, pois tem que se preencher a tabela (matriz) no
+      tamanho da das palavras m e n.
+
+* Dever de casa
+
+- Ler capíto 8
+- Rodar o exemplo das sentenças fixadas no github
+- Organizar os arquivos do github no exemplo
+  "nome_atividade-seu_nome.extenção"

@@ -34,4 +34,5 @@
 	      (values z (+ b c d))))))))
 
 
-
+; how to execute:
+; (sort-and-count (read-data "IntegerArray.txt"))
