@@ -14,11 +14,15 @@
 ;; in the end of the file there are examples of entity recognition and
 ;; count in conllu files.
 
+;; problem: when working with mtokens mixed with tokens, the indices
+;; returned by recognize-ents-in-sentences might not be the real
+;; indices.
+
 
 (ql:quickload :cl-conllu)
-(load (compile-file
-       #P"~/git/ed-2017-2/src/projeto/rec-entities.lisp"))
+(ql:quickload :alexandria)
 
+(load (compile-file #P"~/git/ed-2017-2/src/projeto/rec-entities.lisp"))
 
 ;;
 ;; from sentences to list of strings
@@ -121,16 +125,26 @@ one file at time, which prevents stack overflow."
   (multiple-value-bind (trie *) (trie-from-entities entities-path)
     (let ((file-paths (directory dir-path)))
       (aux-dir-recognize-entities trie file-paths))))
+
+;;
+;; entity statistics
+(defun dir-entities-not-found (dir-path entities-path)
+  (let ((entrecs (dir-recognize-entities dir-path entities-path)))
+    (ents-not-found (alexandria:mappend (lambda (entrec)
+                                          (get-entids-from-entrecs
+                                           (rest entrec)))
+                                        entrecs)
+                    (get-number-of-entities entities-path))))
       
 ;;
 ;; tests
 #|
 (let* ((raw-sents (cl-conllu:read-file
-                   #p"~/git/query-conllu/CF1.conllu"))
+                   #p"/home/bruno/docs/dhbb-sample/2.conllu"))
        (token-sents (cons-tokens-from-sentences raw-sents))
        (form-sents (forms-from-sentences token-sents))
        (char-sents (chars-from-sentences token-sents))
-       (raw-ents (read-entities #p"~/git/ed-2017-2/src/entities.txt"))
+       (raw-ents (read-entities #p"entities.txt"))
        (ents (process-entities raw-ents))
        (trie (start-trie ents))
        (rec-entities (recognize-ents-in-sentences trie char-sents)))

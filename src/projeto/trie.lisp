@@ -94,7 +94,7 @@ separator"
 (defun leaf-in-trie? (trie chars)
   "return nil or trie-leaf."
   (let ((trie-node (partially-in-trie? trie chars)))
-    (when (trie-is-leaf? trie-node)
+    (when (and trie-node (trie-is-leaf? trie-node))
         trie-node)))
 
 (defun str-in-trie? (trie string &optional (separator #\space))
