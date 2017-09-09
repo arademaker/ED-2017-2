@@ -7,20 +7,31 @@
 ;; necessary. sentence lists can be lists of lists of chars for input
 ;; to rec-entities.lisp, or lists of strings for human consumption.
 
-;; use (dir-recognize-entities (dir-path entities-path)) to recognize
+;; use (dir-recognize-entities dir-path entities-path) to recognize
 ;; entities in all *.conllu files in a given directory, using the
-;; entity list at entities-path.
+;; entity list at entities-path. the output will be as
+
+;; ((file-id (sent-id (ent-id index))))
+
+;; (dir-entities-not-found ) and (dir-count-entities ) will return
+;; their namesakes. the dir-prefix in these functions indicate that
+;; files are being read from a directory one at a time, so that the
+;; memory heap does not exhaust. they are also adapted to remove the
+;; unnecessary (in their use cases) file-id, which the original
+;; functions in rec-entities.lisp don't handle.
 
 ;; in the end of the file there are examples of entity recognition and
 ;; count in conllu files.
 
+;; problem: when working with mtokens mixed with tokens, the indices
+;; returned by recognize-ents-in-sentences might not be the real
+;; indices.
+
 
 (ql:quickload :cl-conllu)
-(load (compile-file
-       #P"/home/bruno/git/ed-2017-2/src/projeto/trie.lisp"))
-(load (compile-file
-       #P"/home/bruno/git/ed-2017-2/src/projeto/rec-entities.lisp"))
+(ql:quickload :alexandria)
 
+(load (compile-file #P"~/git/ed-2017-2/src/projeto/rec-entities.lisp"))
 
 ;;
 ;; from sentences to list of strings
@@ -92,12 +103,6 @@ mtokens: (pt em o governo) -> (pt no governo)"
 
 ;;
 ;; reading
-(defun conllu-in-directory (dir-path)
-  "return list of all .conllu files in a directory"
-  (let ((wild-path (merge-pathnames dir-path
-                                    (parse-namestring "*.conllu"))))
-    (directory wild-path)))
-
 (defun chars-in-file (filepath)
   "read conllu file and return lists of chars for each sentence."
   (let* ((raw-sents (cl-conllu:read-file filepath))
@@ -127,17 +132,37 @@ mtokens: (pt em o governo) -> (pt no governo)"
   "recognize entities in all .conllu files in a directory. (this reads
 one file at time, which prevents stack overflow."
   (multiple-value-bind (trie *) (trie-from-entities entities-path)
-    (let ((file-paths (conllu-in-directory dir-path)))
+    (let ((file-paths (directory dir-path)))
       (aux-dir-recognize-entities trie file-paths))))
+
+;;
+;; entity statistics
+(defun get-entids-from-entrecs-with-fileid (entrecs)
+  (alexandria:mappend (lambda (entrec) (get-entids-from-entrecs
+                                        (rest entrec)))
+                      entrecs))
+
+(defun dir-entities-not-found (dir-path entities-path)
+  (let ((entrecs (dir-recognize-entities dir-path entities-path)))
+    (ents-not-found (get-entids-from-entrecs-with-fileid entrecs)
+                    (get-number-of-entities entities-path))))
+;; (mapcar (lambda (entid) (get-entity raw-ents entid)) *) can make
+;; list using entities' names and not id's
+
+(defun dir-count-entities (dir-path entities-path)
+  (count-entities
+   (get-entids-from-entrecs-with-fileid
+    (dir-recognize-entities dir-path entities-path))))
       
 ;;
 ;; tests
+#|
 (let* ((raw-sents (cl-conllu:read-file
-                   #p"~/git/query-conllu/CF1.conllu"))
+                   #p"/home/bruno/docs/dhbb-sample/2.conllu"))
        (token-sents (cons-tokens-from-sentences raw-sents))
        (form-sents (forms-from-sentences token-sents))
        (char-sents (chars-from-sentences token-sents))
-       (raw-ents (read-entities #p"~/git/ed-2017-2/src/entities.txt"))
+       (raw-ents (read-entities #p"entities.txt"))
        (ents (process-entities raw-ents))
        (trie (start-trie ents))
        (rec-entities (recognize-ents-in-sentences trie char-sents)))
@@ -151,3 +176,12 @@ one file at time, which prevents stack overflow."
   (visualize-entities-and-sentences form-sents (reverse rec-entities) raw-ents)
   (viz-count raw-ents (count-entities
                        (get-entids-from-entrecs rec-entities))))
+
+(let ((raw-ents (read-entities #p"path to entities list")))
+           (with-open-file (stream "~/resultado.txt"
+                     :direction :output
+                     :if-exists :supersede
+                     :if-does-not-exist :create)
+    (format stream (write-to-string (viz-count raw-ents (count-entities
+                                         (get-entids-from-entrecs (alexandria:mappend (lambda (entrec) (rest entrec)) (dir-recognize-entities #p"path to conllu files"  #p"path to entities list")))))))))
+|#
