@@ -7,7 +7,7 @@
 ;; necessary. sentence lists can be lists of lists of chars for input
 ;; to rec-entities.lisp, or lists of strings for human consumption.
 
-;; use (dir-recognize-entities (dir-path entities-path)) to recognize
+;; use (dir-recognize-entities dir-path entities-path) to recognize
 ;; entities in all *.conllu files in a given directory, using the
 ;; entity list at entities-path.
 
@@ -90,12 +90,6 @@ mtokens: (pt em o governo) -> (pt no governo)"
 
 ;;
 ;; reading
-(defun conllu-in-directory (dir-path)
-  "return list of all .conllu files in a directory"
-  (let ((wild-path (merge-pathnames dir-path
-                                    (parse-namestring "*.conllu"))))
-    (directory wild-path)))
-
 (defun chars-in-file (filepath)
   "read conllu file and return lists of chars for each sentence."
   (let* ((raw-sents (cl-conllu:read-file filepath))
@@ -125,7 +119,7 @@ mtokens: (pt em o governo) -> (pt no governo)"
   "recognize entities in all .conllu files in a directory. (this reads
 one file at time, which prevents stack overflow."
   (multiple-value-bind (trie *) (trie-from-entities entities-path)
-    (let ((file-paths (conllu-in-directory dir-path)))
+    (let ((file-paths (directory dir-path)))
       (aux-dir-recognize-entities trie file-paths))))
       
 ;;

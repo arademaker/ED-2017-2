@@ -8,7 +8,7 @@
 ;; entities found in each sentence, outputting the results in the
 ;; following format (called 'entrec' in the code):
 
-;; ((sentence-id . (entity-id start-index entity-size)))
+;; ((sentence-id . (entity-id start-index)))
 
 ;; using (visualize-entities-and-sentences ) one can transform this
 ;; output into ((entities found) sentence) for better visualization.
@@ -38,14 +38,14 @@
 
 ;;
 ;; recognize entities
-(defun unwind-entity (entity start size &optional entities)
+(defun unwind-entity (entity start &optional entities)
   (unless entity
     (return-from unwind-entity entities))
   (let ((ent-id (trie-is-leaf? (first entity))))
     (if (numberp ent-id)
-        (unwind-entity (rest entity) start (1- size)
-                       (acons ent-id (list start size) entities))
-        (unwind-entity (rest entity) start (1- size) entities))))
+        (unwind-entity (rest entity) start (acons ent-id start
+                                                  entities))
+        (unwind-entity (rest entity) start entities))))
 
 ;;
 ;; recognize entities
@@ -87,7 +87,7 @@
                                     rest-token-list
                                     :entities
                                     (append (unwind-entity
-                                             entity start iter)
+                                             entity start)
                                             entities)
                                     :start (+ start iter)))))
 
