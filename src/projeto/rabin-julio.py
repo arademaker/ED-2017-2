@@ -34,7 +34,7 @@ def rk_aux(word, text):
     if word == "" or text == "":
         return None
     if len(word) > len(text):
-        return print(None)
+        return None
     rolling_hash = RollingHash(text, len(word))
     word_hash = RollingHash(word, len(word))
     #word_hash.move_window()
@@ -54,44 +54,64 @@ def rk_aux(word, text):
 '''
 Input: words - variavel do tipo list - palavras/entidades a serem buscadas
        texts - variavel do tipo list - com textos onde as words serÃ£o procuradas
-Output: 'texto:', num ,'- palavra:', a palavra ,'- quantidade:', num de vezes que aconteceu
+Output: 'texto:', o numero , qnts vezes no mesmo texto,'- palavra:', a posicao na lista ,'- token:', num de onde comeca
 
 '''
 
 def rabin_karp(words,texts):
     if words == [] or texts == []:
         return None
+    res = []
     for ii in range(len(words)):
         for jj in range(len(texts)):
             iio = rk_aux(words[ii],texts[jj])
-            if iio != None:
-                print('texto:',str(jj),'- palavra:',str(words[ii]),str(ii),'- token sentenca:',
-                      str(iio[1]))
+            if iio != None:     
+                res.append([jj,[ii,iio]])
+                #res.append('texto: '+str(jj)+' - palavra: '+str(words[ii])+" - "+str(ii)+' - token sentenca: '+str(iio[1]))
+    return res
 
+
+texto = open("sentences.txt", "r",encoding='utf8')
+sentencas = texto.read().split('\n')
+texto.close()
+
+
+texto = open("pessoa-individuo.txt", "r",encoding='utf8')
+pess_ind = texto.read().split('\n')
+texto.close()
+
+
+texto = open("organizacao.txt", "r",encoding='utf8')
+organizacao = texto.read().split('\n')
+texto.close()
+
+respon = rabin_karp(pess_ind,sentencas)
+
+
+import json
+
+
+with open('data-pessoa-individuo.json', 'w',encoding="utf8") as outfile:  
+    json.dump(respon, outfile)
+
+
+
+saida = rabin_karp(organizacao,sentencas)
+
+
+with open('data_organizacao.json', 'w',encoding="utf8") as outfile:  
+    json.dump(saida, outfile)
+
+
+print(respon[0:100])
+
+print(saida[0:100])
+
+# exemplo inicial de teste
 
 TEXTOS = ["Joao Marcos foi a praia no sabado","Apesar da chuva Julio Cesar saiu e foi ver Bruno.Julio Cesar e Bruno sao loucos",
           "Julio e Joao sairam","Joao, Marcos e Bruno da Silva"]
 PALAVRAS = ["Julio Cesar","Joao","Joao Marcos","Bruno da Silva"]
 
-rabin_karp(PALAVRAS,TEXTOS)
+#rabin_karp(PALAVRAS,TEXTOS))
 
-
-'''
-exemplo em que as palavras sao maiores que o texto
-'''
-
-TEXTOS = ["Joao Marcos foi a praia no sabado","Apesar da chuva Julio Cesar saiu e foi ver Bruno",
-          "Julio e Joao sairam","Joao e Marcos"]
-PALAVRAS = ["Julio Cesar de azevedo vieira","Joao da silva sauro","Joao Marcos dos santos augusto","Bruno da Silva"]
-
-
-rabin_karp(PALAVRAS,TEXTOS)
-
-'''
-sentencas do projeto
-'''
-
-with open('src/projeto/sentences.txt', encoding="utf8") as inputfile:
-    results = list(inputfile)
-    
-rabin_karp(['Lula','José',"Alexandre","FHC","Salomé","Nielsen","Gazeta"],results)
