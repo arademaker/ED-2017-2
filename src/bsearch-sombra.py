@@ -1,3 +1,5 @@
+# Antônio Luís Sombra de Medeiros - Ex. 2.7 - Papadimitriou
+
 
 # Given a sorted array of distinct integers A[1, . . . , n], you want
 # to find out whether there is an index i for which A[i] = i. Give a
@@ -20,5 +22,7 @@ def binary_search(vet):
   return found
 
 vet = [-3, 1, 10]
+print("Test example: ")
+print("vetor = ", vet)
 b = binary_search(vet)
-print(b)
+print("Resposta: ", b)

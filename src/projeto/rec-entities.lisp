@@ -8,7 +8,7 @@
 ;; entities found in each sentence, outputting the results in the
 ;; following format (called 'entrec' in the code):
 
-;; ((sentence-id . (entity-id start-index entity-size)))
+;; ((sentence-id . (entity-id start-index)))
 
 ;; using (visualize-entities-and-sentences ) one can transform this
 ;; output into ((entities found) sentence) for better visualization.
@@ -34,18 +34,18 @@
 
 
 (ql:quickload :cl-conllu)
-(load (compile-file #p"trie.lisp"))
+(load (compile-file #p"~/git/ed-2017-2/src/projeto/trie.lisp"))
 
 ;;
 ;; recognize entities
-(defun unwind-entity (entity start size &optional entities)
+(defun unwind-entity (entity start &optional entities)
   (unless entity
     (return-from unwind-entity entities))
   (let ((ent-id (trie-is-leaf? (first entity))))
     (if (numberp ent-id)
-        (unwind-entity (rest entity) start (1- size)
-                       (acons ent-id (list start size) entities))
-        (unwind-entity (rest entity) start (1- size) entities))))
+        (unwind-entity (rest entity) start (acons ent-id start
+                                                  entities))
+        (unwind-entity (rest entity) start entities))))
 
 ;;
 ;; recognize entities
@@ -87,7 +87,7 @@
                                     rest-token-list
                                     :entities
                                     (append (unwind-entity
-                                             entity start iter)
+                                             entity start)
                                             entities)
                                     :start (+ start iter)))))
 
@@ -200,7 +200,54 @@ paired."
                           entity-count)))))
 
 ;;
+;; entities not found
+(defun aux-get-null-indices (list &key (ix 0) null-ixs)
+  "return indices where element is null."
+  (if (endp list)
+      null-ixs
+      (aux-get-null-indices (rest list)
+                           :ix (1+ ix)
+                           :null-ixs (if (null (first list))
+                                         (cons ix null-ixs)
+                                         null-ixs))))
+
+(defun get-null-indices (vector)
+  (aux-get-null-indices (coerce vector 'list)))
+
+(defun get-number-of-entities (entities-path)
+  "must have trailing newline."
+  (with-open-file (stream entities-path)
+    (loop for line = (read-line stream nil)
+         for ix from 0
+          while line
+       finally (return ix))))
+
+(defun update-remaining-ents (entid remaining-ents entity-vector)
+  (if (svref entity-vector entid)
+      (values remaining-ents entity-vector)
+      (and (setf (svref entity-vector entid) t)
+           (values (1- remaining-ents) entity-vector))))
+
+(defun aux-ents-not-found (entities-found remaining ent-vec)
+  (when (= remaining 0) (return-from aux-ents-not-found nil))
+  (if (endp entities-found)
+      (get-null-indices ent-vec)
+      (multiple-value-bind (new-remaining new-ent-vec)
+          (update-remaining-ents (first entities-found)
+                                 remaining ent-vec)
+        (aux-ents-not-found (rest entities-found)
+                            new-remaining
+                            new-ent-vec))))
+
+(defun ents-not-found (entities-found nr-ents)
+  (let ((entity-vector (make-array nr-ents :initial-element nil)))
+    (aux-ents-not-found entities-found nr-ents entity-vector)))
+  
+
+
+;;
 ;; tests
+#|
 (get-entids-from-entrec '((20 11 1) (21 7 3))) ; (21 20)
 (count-and-remove 1 (list 1 52 26 73 1 0)) ; 2 (0 73 26 52)
 (count-and-remove -88 (list 1 52 26 73 1 0)) ; (0 1...)
@@ -209,3 +256,4 @@ paired."
 (count-entities (list 1 2 3 4 -1 1 8 -1 -1 3))
                ;; ((8 . 1) (4 . 1) (-1 . 3) (2 . 1) (3 . 2) (1 . 2))
 
+|#
