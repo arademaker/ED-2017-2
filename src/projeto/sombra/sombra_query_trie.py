@@ -1,22 +1,47 @@
+# Antonio Luís Sombra de Medeiros - 2017
+
+# Programa que carrega um arquivo 'sentences'e um arquivo trie', 
+# obtido através do create_trie.py alimentado por um arquivo de entidades.
+
+#Modo de uso: Modifique as linhas 19 e 25 com os nomes dos 
+#seus respectivos arquivos rode o script: python sombra_query_trie.py
+
+
 from collections import Counter, defaultdict
 import ast
+import string
+
+#DEFINA QUAL TRIE VOCÊ UTILIZARÁ AQUI:
+
+#trie_pessoa.txt  ou  trie_organizacao.txt 
 
 #load trie
-with open('trie.txt','r') as inf:
+with open('trie_organizacao.txt','r') as inf:
     trie = ast.literal_eval(inf.read())
 
-#load sentences.txt
+#load sentences.txt  + tratamento das sentences para fazer a busca
+sentences_vec = []
+punctuation = set(string.punctuation).union({'»','«'}) - {'-'}
 with open('sentences.txt','r') as sentence_file:
-    sentences_vec = [it.replace('.','') for it in sentence_file.read().splitlines()]
+    for sentence in sentence_file.read().splitlines():
+        sentence.strip().strip('.')
+        sentence.replace('»','')
+        sentence.replace('«','')
+        for ch in punctuation:
+            sentence = sentence.replace(ch, ' '+ch+' ')
+            sentence = sentence.replace('  ', ' ')
+        sentences_vec.append(sentence)
+    
+#Função recursiva que recebe como parametro a trie, 
+#a posição na sentença e a entidade de retorno.
+#entidade eh saida e nao entrada
 
-
-def wordInTrie(trie,pos: int ,entidade: list) -> bool: #recebe como parametro a trie, a posição na sentença e a entidade de retorno
+def wordInTrie(trie,pos: int ,entidade: list) -> bool: 
+    
     if pos >= len(sentenceVector):
         return False
     
     word = sentenceVector[pos]
-    if 'finish' in trie and word not in trie:
-        return True
     
     if word not in trie:
         return False
@@ -27,8 +52,7 @@ def wordInTrie(trie,pos: int ,entidade: list) -> bool: #recebe como parametro a 
     if(wordInTrie(trie[word],pos+1,entidade_aux)):
         entidade += entidade_aux
         return True
-    
-    return 'finish' in trie
+    return 'finish' in trie[word]
 
 c = Counter()
 places = defaultdict(list)
@@ -39,7 +63,7 @@ places = defaultdict(list)
 # places --> dicionário das posiçoes das entidades no documento sentences.txt. {entidade: (id_da_sentença, posição_na_sentença)} 
 
 for line_id, sentence in enumerate(sentences_vec): # sentences_vec= documento com todas as sentencas  (uma em cada linha) em formato de vetor
-    sentenceVector = [word.lower() for word in sentence.split(' ')]
+    sentenceVector = [word for word in sentence.split(' ')] ###
     end = -1
     for i, word in enumerate(sentenceVector):
         if i <= end:
@@ -52,10 +76,19 @@ for line_id, sentence in enumerate(sentences_vec): # sentences_vec= documento co
             c[entidade_palavra] += 1
             places[entidade_palavra].append((line_id,i))
 
-print(c)
-print(places)
+print("Total de entidades encontradas: ", len(c))
+print()
+print("Sentença | Entidade | id da Entidade na Sentença: ")
 print()
 for x,y in places.items():
-    print(x + ": ")
     for i in range(len(y)):
-        print(y[i])
+        print(str(y[i][0])+" | ",x+" | ",y[i][1])
+
+print()
+print()
+print("Counter com as Entidades e a quantidade de sentenças em que ela aparece: ")
+print()
+print(c)
+print()
+
+

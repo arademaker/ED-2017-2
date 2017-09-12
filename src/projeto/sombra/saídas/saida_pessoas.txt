@@ -1,0 +1,280 @@
+Total de entidades encontradas:  143
+
+Sentença | Entidade | id da Entidade na Sentença: 
+
+2652 |  Benito Gama |  13
+4767 |  Carlos Fuentes |  70
+1642 |  Juscelino Kubitschek |  12
+647 |  Fidel Castro |  3
+2621 |  Fidel Castro |  28
+4828 |  Fidel Castro |  16
+8255 |  Fidel Castro |  4
+5406 |  Carlos Azevedo |  4
+4226 |  José Reis |  28
+4567 |  Manuel Machado |  4
+4573 |  Manuel Machado |  0
+6042 |  Manuel Machado |  43
+7494 |  Pedro Ferreira |  1
+5089 |  João Guimarães Rosa |  33
+210 |  Antônio Carlos Biscaia |  17
+1545 |  Caetano Veloso |  19
+3296 |  Caetano Veloso |  9
+2214 |  Rui Ramos |  8
+477 |  Hélio Costa |  20
+3701 |  Hillary Clinton |  11
+9283 |  Hillary Clinton |  11
+1636 |  Castor de Andrade |  13
+518 |  Sônia Pompeu |  13
+9350 |  Camboja |  2
+6001 |  João Pedro |  0
+503 |  Rodrigues Alves |  10
+568 |  Francisco Rossi |  10
+4169 |  Francisco Rossi |  22
+4665 |  Negros |  33
+1907 |  Arthur Sendas |  14
+1 |  Fernando Henrique Cardoso |  30
+116 |  Fernando Henrique Cardoso |  22
+123 |  Fernando Henrique Cardoso |  24
+166 |  Fernando Henrique Cardoso |  13
+178 |  Fernando Henrique Cardoso |  13
+568 |  Fernando Henrique Cardoso |  24
+908 |  Fernando Henrique Cardoso |  47
+1901 |  Fernando Henrique Cardoso |  9
+2106 |  Fernando Henrique Cardoso |  18
+2171 |  Fernando Henrique Cardoso |  5
+2686 |  Fernando Henrique Cardoso |  14
+2798 |  Fernando Henrique Cardoso |  26
+2802 |  Fernando Henrique Cardoso |  6
+2913 |  Fernando Henrique Cardoso |  11
+2950 |  Fernando Henrique Cardoso |  11
+3009 |  Fernando Henrique Cardoso |  19
+3328 |  Fernando Henrique Cardoso |  11
+4208 |  Fernando Henrique Cardoso |  9
+3992 |  Paulo Renato de Souza |  38
+4802 |  José Lopes |  15
+4807 |  José Lopes |  0
+5053 |  Marques de Oliveira |  71
+1849 |  Ibsen Pinheiro |  2
+6120 |  Marcelo Caetano |  28
+2271 |  Leitão de Abreu |  2
+4341 |  José Magalhães |  21
+5081 |  José Magalhães |  12
+5788 |  José Magalhães |  8
+8441 |  José Magalhães |  2
+8444 |  José Magalhães |  9
+2731 |  Teixeira Mendes |  9
+5973 |  João Soares |  16
+6609 |  Pedro Alves |  11
+7531 |  Pedro Alves |  24
+7534 |  Pedro Alves |  2
+9064 |  Jaime Gama |  0
+7997 |  João Macedo |  3
+4190 |  Carlos Gomes |  22
+8394 |  Shimon Peres |  7
+816 |  Bastos |  3
+5085 |  Bastos |  34
+1101 |  Mauro Benevides |  22
+353 |  Tasso Jereissati |  3
+1908 |  Tasso Jereissati |  28
+2725 |  Tasso Jereissati |  2
+4080 |  Tasso Jereissati |  15
+136 |  Marília Gabriela |  22
+2860 |  Teotônio Vilela Filho |  18
+5920 |  Jimmy Carter |  3
+6543 |  Jimmy Carter |  18
+383 |  Luiz Inácio Lula da Silva |  11
+563 |  Luiz Inácio Lula da Silva |  16
+2025 |  Luiz Inácio Lula da Silva |  15
+426 |  Euclides da Cunha |  34
+5706 |  José Eduardo dos Santos |  38
+8494 |  José Eduardo dos Santos |  0
+4212 |  Mauro Salles |  2
+405 |  Getúlio Vargas |  32
+1150 |  Getúlio Vargas |  20
+2664 |  Sérgio Abreu |  2
+57 |  Ruth Escobar |  36
+3678 |  Henry Kissinger |  8
+1724 |  José Dirceu |  20
+448 |  Eurico |  7
+2910 |  Eurico |  12
+4723 |  Eurico |  0
+5241 |  Eurico |  1
+5243 |  Eurico |  0
+741 |  Cacá Diegues |  8
+9067 |  Tony Blair |  26
+1248 |  Rubens Ricupero |  7
+1842 |  Rubens Ricupero |  20
+2914 |  Rubens Ricupero |  24
+4073 |  Rubens Ricupero |  5
+3829 |  Príncipe Charles |  0
+3830 |  Príncipe Charles |  1
+2633 |  Inocêncio de Oliveira |  22
+7527 |  Armando Vidal |  7
+4696 |  Salvador Allende |  32
+4289 |  Fernando Pessoa |  43
+4310 |  Fernando Pessoa |  36
+6042 |  Fernando Pessoa |  23
+8921 |  Fernando Pessoa |  10
+3165 |  Guilherme Palmeira |  10
+2637 |  Adylson Motta |  5
+228 |  João Havelange |  30
+2092 |  João Havelange |  2
+9065 |  Robin Cook |  4
+5089 |  Miguel Torga |  27
+324 |  Dias Gomes |  0
+326 |  Dias Gomes |  2
+3419 |  Dias Gomes |  2
+563 |  José Paulo Bisol |  12
+3166 |  José Paulo Bisol |  14
+3148 |  Nilo Batista |  11
+3230 |  Nilo Batista |  26
+2860 |  Albano Franco |  32
+3756 |  Pedro Ivo |  0
+5193 |  Roberto Carlos |  8
+5660 |  Paulo Silva |  0
+5661 |  Paulo Silva |  8
+2268 |  Ulysses Guimarães |  15
+2783 |  Ulysses Guimarães |  17
+3439 |  Silvio Santos |  8
+3423 |  Miguel Reale |  2
+2502 |  Eliezer Batista |  5
+2503 |  Eliezer Batista |  28
+2824 |  Saulo Ramos |  0
+2826 |  Saulo Ramos |  5
+2832 |  Saulo Ramos |  19
+5091 |  Pedro Ribeiro |  17
+5089 |  Clarice Lispector |  30
+1104 |  Marta Suplicy |  24
+4397 |  Rui Santos |  12
+414 |  Gustavo Krause |  15
+2997 |  Antônio Amaral |  36
+597 |  Renato Batista |  0
+796 |  Aspásia Camargo |  14
+3114 |  Franklin Delano Roosevelt |  12
+9323 |  Carlos Macedo |  9
+2183 |  Margaret Thatcher |  24
+5136 |  Maria Santos |  3
+4884 |  Saddam Hussein |  0
+4885 |  Saddam Hussein |  0
+5865 |  Saddam Hussein |  30
+6311 |  Saddam Hussein |  10
+7333 |  Saddam Hussein |  38
+7791 |  Saddam Hussein |  37
+7940 |  Saddam Hussein |  50
+2306 |  Maurício Corrêa |  16
+3243 |  Maurício Corrêa |  3
+2489 |  Emerson Fittipaldi |  11
+1945 |  Ronan Tito |  33
+5948 |  Craveiro Lopes |  10
+5951 |  Craveiro Lopes |  6
+5953 |  Craveiro Lopes |  10
+5954 |  Craveiro Lopes |  5
+4211 |  Abram Szajman |  0
+1584 |  Reynaldo de Barros |  0
+568 |  Mário Covas |  13
+2105 |  Mário Covas |  12
+2214 |  Mário Covas |  28
+2364 |  Mário Covas |  10
+4023 |  Jorge da Cunha Lima |  10
+111 |  Bill Clinton |  14
+3284 |  Bill Clinton |  2
+5509 |  Bill Clinton |  9
+8202 |  Bill Clinton |  40
+9284 |  Bill Clinton |  6
+6224 |  Ezer Weizman |  9
+6334 |  Mário Soares |  5
+6351 |  Mário Soares |  17
+6896 |  Mário Soares |  24
+9353 |  Mário Soares |  11
+8110 |  Eduardo Marques |  21
+3342 |  José Saramago |  0
+8723 |  Augusto Carvalho |  1
+8724 |  Augusto Carvalho |  25
+8617 |  Jorge Albuquerque |  14
+2363 |  José Serra |  5
+306 |  José Sarney |  0
+905 |  José Sarney |  14
+1789 |  José Sarney |  27
+3061 |  José Sarney |  35
+3860 |  José Sarney |  1
+202 |  Alberto Goldman |  12
+389 |  Carlos dos Santos |  9
+6232 |  Carlos dos Santos |  6
+7247 |  James Baker |  42
+4942 |  Yasser Arafat |  14
+5668 |  Yasser Arafat |  10
+8394 |  Yasser Arafat |  25
+894 |  Francisco Morato |  8
+2641 |  Pedro Simon |  13
+406 |  Paulo Maluf |  16
+763 |  Paulo Maluf |  24
+1314 |  Paulo Maluf |  9
+1631 |  Paulo Maluf |  9
+1851 |  Paulo Maluf |  6
+2104 |  Paulo Maluf |  15
+2436 |  Paulo Maluf |  14
+1545 |  Gilberto Gil |  16
+3426 |  João Carlos Martins |  24
+7380 |  Carlos Duarte |  19
+7381 |  Carlos Duarte |  36
+1197 |  Carlos Menem |  35
+2509 |  Carlos Menem |  16
+2643 |  Carlos Menem |  9
+2765 |  Carlos Menem |  4
+4134 |  Carlos Menem |  7
+168 |  Ronald Reagan |  0
+5920 |  Ronald Reagan |  24
+3596 |  Cid Carvalho |  16
+944 |  Alves de Souza |  6
+6601 |  Carlos Barbosa |  29
+4080 |  Ciro Gomes |  29
+3992 |  Sérgio Motta |  25
+1103 |  João Pessoa |  26
+2166 |  João Pessoa |  14
+3208 |  João Pessoa |  8
+2631 |  Humberto Lucena |  15
+123 |  Itamar Franco |  2
+164 |  Itamar Franco |  2
+468 |  Itamar Franco |  2
+788 |  Itamar Franco |  7
+1016 |  Itamar Franco |  9
+1118 |  Itamar Franco |  10
+1179 |  Itamar Franco |  14
+2281 |  Itamar Franco |  12
+2798 |  Itamar Franco |  20
+3230 |  Itamar Franco |  11
+3514 |  Itamar Franco |  3
+5939 |  Itamar Franco |  18
+5940 |  Itamar Franco |  41
+906 |  Orestes Quércia |  27
+998 |  Orestes Quércia |  24
+1166 |  Orestes Quércia |  20
+1851 |  Orestes Quércia |  21
+2754 |  Orestes Quércia |  8
+2785 |  Orestes Quércia |  0
+2116 |  Luiz Gushiken |  3
+6659 |  Walt Disney |  13
+5332 |  Celso Santos |  6
+2345 |  José Genoino |  0
+3596 |  Paulo Portugal |  46
+1945 |  Espiridião Amin |  27
+4123 |  Boutros Boutros-Ghali |  9
+4295 |  Zhao Ziyang |  76
+1101 |  José Fogaça |  10
+9196 |  Kurt Weil |  9
+1825 |  Costa e Silva |  20
+5972 |  Costa e Silva |  37
+5975 |  Costa e Silva |  58
+1582 |  Jânio Quadros |  0
+5941 |  Jânio Quadros |  5
+597 |  José da Silva |  7
+5554 |  José da Silva |  17
+5556 |  José da Silva |  20
+3243 |  Leonel Brizola |  15
+4103 |  Leonel Brizola |  5
+
+
+Counter com as Entidades e a quantidade de sentenças em que ela aparece: 
+
+Counter({'Fernando Henrique Cardoso': 18, 'Itamar Franco': 13, 'Saddam Hussein': 7, 'Paulo Maluf': 7, 'Orestes Quércia': 6, 'José Magalhães': 5, 'Eurico': 5, 'Bill Clinton': 5, 'José Sarney': 5, 'Carlos Menem': 5, 'Fidel Castro': 4, 'Tasso Jereissati': 4, 'Rubens Ricupero': 4, 'Fernando Pessoa': 4, 'Craveiro Lopes': 4, 'Mário Covas': 4, 'Mário Soares': 4, 'Manuel Machado': 3, 'Pedro Alves': 3, 'Luiz Inácio Lula da Silva': 3, 'Dias Gomes': 3, 'Saulo Ramos': 3, 'Yasser Arafat': 3, 'João Pessoa': 3, 'Costa e Silva': 3, 'José da Silva': 3, 'Caetano Veloso': 2, 'Hillary Clinton': 2, 'Francisco Rossi': 2, 'José Lopes': 2, 'Bastos': 2, 'Jimmy Carter': 2, 'José Eduardo dos Santos': 2, 'Getúlio Vargas': 2, 'Príncipe Charles': 2, 'João Havelange': 2, 'José Paulo Bisol': 2, 'Nilo Batista': 2, 'Paulo Silva': 2, 'Ulysses Guimarães': 2, 'Eliezer Batista': 2, 'Maurício Corrêa': 2, 'Augusto Carvalho': 2, 'Carlos dos Santos': 2, 'Carlos Duarte': 2, 'Ronald Reagan': 2, 'Jânio Quadros': 2, 'Leonel Brizola': 2, 'Benito Gama': 1, 'Carlos Fuentes': 1, 'Juscelino Kubitschek': 1, 'Carlos Azevedo': 1, 'José Reis': 1, 'Pedro Ferreira': 1, 'João Guimarães Rosa': 1, 'Antônio Carlos Biscaia': 1, 'Rui Ramos': 1, 'Hélio Costa': 1, 'Castor de Andrade': 1, 'Sônia Pompeu': 1, 'Camboja': 1, 'João Pedro': 1, 'Rodrigues Alves': 1, 'Negros': 1, 'Arthur Sendas': 1, 'Paulo Renato de Souza': 1, 'Marques de Oliveira': 1, 'Ibsen Pinheiro': 1, 'Marcelo Caetano': 1, 'Leitão de Abreu': 1, 'Teixeira Mendes': 1, 'João Soares': 1, 'Jaime Gama': 1, 'João Macedo': 1, 'Carlos Gomes': 1, 'Shimon Peres': 1, 'Mauro Benevides': 1, 'Marília Gabriela': 1, 'Teotônio Vilela Filho': 1, 'Euclides da Cunha': 1, 'Mauro Salles': 1, 'Sérgio Abreu': 1, 'Ruth Escobar': 1, 'Henry Kissinger': 1, 'José Dirceu': 1, 'Cacá Diegues': 1, 'Tony Blair': 1, 'Inocêncio de Oliveira': 1, 'Armando Vidal': 1, 'Salvador Allende': 1, 'Guilherme Palmeira': 1, 'Adylson Motta': 1, 'Robin Cook': 1, 'Miguel Torga': 1, 'Albano Franco': 1, 'Pedro Ivo': 1, 'Roberto Carlos': 1, 'Silvio Santos': 1, 'Miguel Reale': 1, 'Pedro Ribeiro': 1, 'Clarice Lispector': 1, 'Marta Suplicy': 1, 'Rui Santos': 1, 'Gustavo Krause': 1, 'Antônio Amaral': 1, 'Renato Batista': 1, 'Aspásia Camargo': 1, 'Franklin Delano Roosevelt': 1, 'Carlos Macedo': 1, 'Margaret Thatcher': 1, 'Maria Santos': 1, 'Emerson Fittipaldi': 1, 'Ronan Tito': 1, 'Abram Szajman': 1, 'Reynaldo de Barros': 1, 'Jorge da Cunha Lima': 1, 'Ezer Weizman': 1, 'Eduardo Marques': 1, 'José Saramago': 1, 'Jorge Albuquerque': 1, 'José Serra': 1, 'Alberto Goldman': 1, 'James Baker': 1, 'Francisco Morato': 1, 'Pedro Simon': 1, 'Gilberto Gil': 1, 'João Carlos Martins': 1, 'Cid Carvalho': 1, 'Alves de Souza': 1, 'Carlos Barbosa': 1, 'Ciro Gomes': 1, 'Sérgio Motta': 1, 'Humberto Lucena': 1, 'Luiz Gushiken': 1, 'Walt Disney': 1, 'Celso Santos': 1, 'José Genoino': 1, 'Paulo Portugal': 1, 'Espiridião Amin': 1, 'Boutros Boutros-Ghali': 1, 'Zhao Ziyang': 1, 'José Fogaça': 1, 'Kurt Weil': 1})
+

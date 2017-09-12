@@ -1,6 +1,20 @@
+# Antonio Luís Sombra de Medeiros - 2017
+
+# Programa que gera a trie a partir de um arquivo de entidades
+ 
+#Modo de uso: O programa recebe dois argumentos: arquivo_entidade, arquivo_de_gravação_trie
+# Ex de uso: Rode no terminal o comenado: python create_trie.py entities.txt trie.txt
+# entities.txt é seu arquivo de entities, na mesma pasta do script
+# trie.txt é o arquivo em que será gravada a trie.
+
+
+
 import os
 import sys
-import json
+import simplejson as json
+import codecs
+import io
+
 
 class BuildTrie():
     def __init__(self, file_path: str):
@@ -10,10 +24,10 @@ class BuildTrie():
     def get_parsed_name_list(self) -> list:
         parsed_name_list = list()
         if os.path.exists(self.file_path):
-            with open(self.file_path, 'r') as file:
+            with codecs.open(self.file_path, encoding='utf-8') as file:
                 line_list = file.readlines()
             for line in line_list:
-                parsed_name = list(map(lambda x: x.lower(), line.split(' ')))
+                parsed_name = list(map(lambda x: x, line.strip().replace("  "," ").split(' ')))
                 parsed_name[-1] = parsed_name[-1].replace("\n","")
                 parsed_name_list.append(parsed_name)
         else:
@@ -40,7 +54,9 @@ class BuildTrie():
 
     def write_file(self,filename):
         with open(filename, 'w') as file:
-            file.write(json.dumps(self.get_trie(), indent=4))
+            trie = self.get_trie()    
+            data = json.dumps(trie, ensure_ascii=False, indent = 4, encoding="utf-8")
+            file.write(str(data))
 
 if __name__ == '__main__':
     filename = sys.argv[1]
