@@ -1,3 +1,12 @@
+# Antonio Luís Sombra de Medeiros - 2017
+
+# Programa que carrega um arquivo 'sentences'e um arquivo trie', 
+# obtido através do create_trie.py alimentado por um arquivo de entidades.
+
+#Modo de uso: Modifique as linhas 19 e 25 com os nomes dos 
+#seus respectivos arquivos rode o script: python sombra_query_trie.py
+
+
 from collections import Counter, defaultdict
 import ast
 import string
@@ -10,7 +19,7 @@ import string
 with open('trie_organizacao.txt','r') as inf:
     trie = ast.literal_eval(inf.read())
 
-#load sentences.txt  + limpeza no sentences
+#load sentences.txt  + tratamento das sentences para fazer a busca
 sentences_vec = []
 punctuation = set(string.punctuation).union({'»','«'}) - {'-'}
 with open('sentences.txt','r') as sentence_file:
@@ -23,8 +32,10 @@ with open('sentences.txt','r') as sentence_file:
             sentence = sentence.replace('  ', ' ')
         sentences_vec.append(sentence)
     
-#recebe como parametro a trie, a posição na sentença e a entidade de retorno
+#Função recursiva que recebe como parametro a trie, 
+#a posição na sentença e a entidade de retorno.
 #entidade eh saida e nao entrada
+
 def wordInTrie(trie,pos: int ,entidade: list) -> bool: 
     
     if pos >= len(sentenceVector):

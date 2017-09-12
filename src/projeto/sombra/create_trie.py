@@ -1,3 +1,14 @@
+# Antonio Luís Sombra de Medeiros - 2017
+
+# Programa que gera a trie a partir de um arquivo de entidades
+ 
+#Modo de uso: O programa recebe dois argumentos: arquivo_entidade, arquivo_de_gravação_trie
+# Ex de uso: Rode no terminal o comenado: python create_trie.py entities.txt trie.txt
+# entities.txt é seu arquivo de entities, na mesma pasta do script
+# trie.txt é o arquivo em que será gravada a trie.
+
+
+
 import os
 import sys
 import simplejson as json
