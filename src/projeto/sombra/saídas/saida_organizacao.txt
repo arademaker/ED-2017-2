@@ -1,0 +1,317 @@
+Total de entidades encontradas:  76
+
+Sentença | Entidade | id da Entidade na Sentença: 
+
+2719 |  Econômico |  9
+1101 |  Ceará |  20
+2724 |  Ceará |  0
+3651 |  Ceará |  11
+3655 |  Ceará |  16
+4080 |  Ceará |  13
+1454 |  Organizações Globo |  15
+3925 |  Conselho Federal de Medicina |  2
+910 |  Associação dos Engenheiros da Petrobrás |  2
+2213 |  Tribunal Regional Eleitoral |  14
+3934 |  Tribunal Regional Eleitoral |  2
+136 |  Partido dos Trabalhadores |  7
+5939 |  Partido dos Trabalhadores |  26
+813 |  Centro Brasileiro de Análise e Planejamento |  14
+5012 |  Conselho de Ministros |  7
+8343 |  Conselho de Ministros |  24
+8407 |  Conselho de Ministros |  20
+8886 |  Conselho de Ministros |  45
+8908 |  Conselho de Ministros |  13
+9362 |  Nossa Senhora do Carmo |  2
+103 |  Sindicato dos Metalúrgicos |  1
+707 |  Instituto Brasileiro de Geografia e Estatística |  7
+3728 |  Instituto Brasileiro de Geografia e Estatística |  4
+181 |  Câmara dos Deputados |  10
+1693 |  Câmara dos Deputados |  20
+1919 |  Câmara dos Deputados |  11
+2418 |  Câmara dos Deputados |  14
+842 |  Bolsa de Valores de São Paulo |  3
+2860 |  Confederação Nacional da Indústria |  37
+3129 |  Nossa Caixa |  15
+906 |  Superior Tribunal de Justiça |  12
+4607 |  Câmara Municipal |  1
+4614 |  Câmara Municipal |  4
+5036 |  Câmara Municipal |  11
+5618 |  Câmara Municipal |  5
+5639 |  Câmara Municipal |  25
+5844 |  Câmara Municipal |  52
+6902 |  Câmara Municipal |  11
+7272 |  Câmara Municipal |  1
+8687 |  Câmara Municipal |  13
+8720 |  Câmara Municipal |  3
+8872 |  Câmara Municipal |  40
+9076 |  Câmara Municipal |  4
+397 |  Sebrae |  3
+398 |  Sebrae |  12
+713 |  Sebrae |  11
+714 |  Sebrae |  17
+3399 |  Sebrae |  11
+3723 |  Junta |  5
+4614 |  Junta |  42
+4892 |  Junta |  11
+5518 |  Junta |  57
+5621 |  Junta |  0
+6548 |  Junta |  34
+6800 |  Junta |  3
+6880 |  Junta |  10
+7069 |  Junta |  7
+7688 |  Junta |  22
+7689 |  Junta |  5
+8891 |  Junta |  2
+3724 |  Sindicato |  1
+6436 |  Sindicato |  2
+8323 |  Sindicato |  44
+9200 |  Sindicato |  1
+8687 |  Sindicato dos Têxteis |  5
+1488 |  Banespa |  3
+1923 |  Banespa |  9
+1924 |  Banespa |  5
+2384 |  Banespa |  1
+3132 |  Banespa |  1
+3161 |  Banespa |  14
+1585 |  Banco Mundial |  1
+1586 |  Banco Mundial |  3
+2308 |  Clube Militar |  6
+405 |  Fundação |  31
+707 |  Fundação |  6
+1150 |  Fundação |  19
+1588 |  Fundação |  21
+2032 |  Fundação |  10
+4707 |  Fundação |  11
+5087 |  Fundação |  4
+5422 |  Fundação |  9
+7174 |  Fundação |  33
+7284 |  Fundação |  22
+8002 |  Fundação |  16
+1098 |  Tribunal de Justiça |  3
+2502 |  Associação Comercial |  23
+6574 |  Associação Comercial |  6
+5844 |  Habitação |  30
+7461 |  Habitação |  10
+7462 |  Habitação |  7
+7462 |  Habitação |  47
+8686 |  Habitação |  20
+1454 |  Companhia de Mineração |  22
+131 |  Banco Nacional de Habitação |  30
+2366 |  Paranapanema |  23
+2171 |  Faculdade de Direito |  22
+4881 |  Assembleia |  19
+5365 |  Assembleia |  7
+5366 |  Assembleia |  17
+5367 |  Assembleia |  14
+6148 |  Assembleia |  26
+6156 |  Assembleia |  9
+6219 |  Assembleia |  23
+6481 |  Assembleia |  11
+7092 |  Assembleia |  1
+7633 |  Assembleia |  39
+7635 |  Assembleia |  40
+7636 |  Assembleia |  25
+7638 |  Assembleia |  28
+7647 |  Assembleia |  3
+7689 |  Assembleia |  25
+7876 |  Assembleia |  5
+8260 |  Assembleia |  11
+8263 |  Assembleia |  16
+8322 |  Assembleia |  51
+8407 |  Assembleia |  8
+8649 |  Assembleia |  1
+8651 |  Assembleia |  1
+8719 |  Assembleia |  21
+8892 |  Assembleia |  0
+8893 |  Assembleia |  1
+8896 |  Assembleia |  7
+8897 |  Assembleia |  23
+9171 |  Assembleia |  36
+2073 |  Sindicato dos Eletricitários de São Paulo |  10
+2392 |  Caixa Econômica Federal |  38
+3497 |  Associação Brasileira da Indústria de Máquinas |  4
+813 |  Universidade Estadual de Campinas |  30
+834 |  Universidade Estadual de Campinas |  13
+857 |  Toyota |  7
+8783 |  Toyota |  12
+100 |  Força Sindical |  10
+2302 |  Força Sindical |  7
+7544 |  Banco Português |  23
+3699 |  Partido Liberal |  3
+6899 |  Supremo Tribunal de Justiça |  40
+257 |  Líbano |  7
+275 |  Líbano |  6
+6214 |  Líbano |  20
+6216 |  Líbano |  14
+6759 |  Líbano |  20
+6761 |  Líbano |  25
+7320 |  Líbano |  19
+7321 |  Líbano |  8
+7515 |  Líbano |  8
+8051 |  Líbano |  64
+6070 |  Liceu |  16
+8519 |  Bolsa de Valores |  2
+3709 |  Telebrás |  19
+858 |  Itália |  9
+984 |  Itália |  38
+1375 |  Itália |  31
+2241 |  Itália |  18
+3114 |  Itália |  30
+3481 |  Itália |  28
+3629 |  Itália |  24
+3925 |  Itália |  25
+3973 |  Itália |  18
+4232 |  Itália |  5
+4257 |  Itália |  5
+4348 |  Itália |  1
+4530 |  Itália |  23
+5107 |  Itália |  17
+5203 |  Itália |  34
+5432 |  Itália |  18
+5613 |  Itália |  7
+6608 |  Itália |  11
+6736 |  Itália |  38
+6788 |  Itália |  7
+6789 |  Itália |  42
+6960 |  Itália |  44
+7365 |  Itália |  14
+7618 |  Itália |  13
+8174 |  Itália |  24
+8557 |  Itália |  0
+8715 |  Itália |  28
+8909 |  Itália |  4
+9041 |  Itália |  43
+9358 |  Itália |  3
+9360 |  Itália |  21
+8589 |  Siemens |  18
+2442 |  Supremo |  1
+2446 |  Supremo |  5
+2447 |  Supremo |  1
+5706 |  Supremo |  17
+5724 |  Supremo |  12
+3398 |  Ordem dos Advogados do Brasil |  13
+2243 |  Caixa |  6
+3043 |  Caixa |  0
+5232 |  Caixa |  0
+5419 |  Caixa |  14
+5843 |  Caixa |  28
+5844 |  Caixa |  37
+5847 |  Caixa |  23
+6503 |  Caixa |  34
+9167 |  Banco de Comércio |  4
+551 |  Câmara |  19
+1742 |  Câmara |  4
+1834 |  Câmara |  13
+1850 |  Câmara |  2
+1918 |  Câmara |  20
+2388 |  Câmara |  11
+2628 |  Câmara |  7
+2633 |  Câmara |  19
+2634 |  Câmara |  21
+2637 |  Câmara |  3
+2637 |  Câmara |  13
+2858 |  Câmara |  2
+3144 |  Câmara |  7
+4415 |  Câmara |  42
+4547 |  Câmara |  33
+4566 |  Câmara |  8
+4580 |  Câmara |  7
+4630 |  Câmara |  8
+4932 |  Câmara |  7
+4934 |  Câmara |  3
+4945 |  Câmara |  15
+4953 |  Câmara |  14
+5245 |  Câmara |  50
+5332 |  Câmara |  28
+5367 |  Câmara |  32
+5465 |  Câmara |  31
+5799 |  Câmara |  45
+5840 |  Câmara |  7
+5841 |  Câmara |  25
+5936 |  Câmara |  25
+5977 |  Câmara |  42
+6051 |  Câmara |  9
+6156 |  Câmara |  1
+6802 |  Câmara |  3
+6836 |  Câmara |  7
+6901 |  Câmara |  2
+6998 |  Câmara |  30
+7069 |  Câmara |  48
+7242 |  Câmara |  31
+7271 |  Câmara |  0
+7415 |  Câmara |  16
+7462 |  Câmara |  36
+7519 |  Câmara |  18
+7520 |  Câmara |  31
+7620 |  Câmara |  53
+7633 |  Câmara |  36
+7688 |  Câmara |  52
+7723 |  Câmara |  19
+7767 |  Câmara |  2
+7868 |  Câmara |  42
+7876 |  Câmara |  12
+7876 |  Câmara |  55
+8016 |  Câmara |  41
+8198 |  Câmara |  14
+8606 |  Câmara |  15
+8722 |  Câmara |  44
+8764 |  Câmara |  21
+8934 |  Câmara |  3
+8936 |  Câmara |  21
+8936 |  Câmara |  49
+8993 |  Câmara |  32
+9074 |  Câmara |  7
+9221 |  Câmara |  0
+3708 |  Ericsson |  6
+2072 |  Eletropaulo |  0
+2073 |  Eletropaulo |  30
+8242 |  Record |  13
+2640 |  Universidade Federal de Santa Maria |  30
+3429 |  Cruzeiro |  4
+3432 |  Cruzeiro |  12
+3437 |  Cruzeiro |  9
+3645 |  Cruzeiro |  9
+2551 |  Tribunal Superior Eleitoral |  12
+831 |  Legislativo |  23
+832 |  Legislativo |  18
+6741 |  Conselho Nacional de Educação |  9
+2481 |  Federação Paulista de Futebol |  14
+6083 |  Conselho de Administração |  23
+7378 |  Conselho de Administração |  38
+2014 |  Universidade Federal da Paraíba |  5
+1408 |  Organização dos Estados Americanos |  8
+5764 |  Organização dos Estados Americanos |  20
+550 |  Supremo Tribunal Federal |  2
+2419 |  Supremo Tribunal Federal |  15
+1880 |  Instituto de Pesquisas |  6
+713 |  Tribunal de Contas |  38
+178 |  Banco Central |  34
+865 |  Banco Central |  2
+1249 |  Banco Central |  7
+1429 |  Banco Central |  2
+1430 |  Banco Central |  6
+1431 |  Banco Central |  9
+2411 |  Banco Central |  12
+2577 |  Banco Central |  6
+2578 |  Banco Central |  16
+3783 |  Banco Central |  10
+4000 |  Banco Central |  28
+6460 |  Banco Central |  9
+1323 |  Congresso Nacional |  13
+4209 |  Congresso Nacional |  11
+5175 |  Congresso Nacional |  31
+5959 |  Congresso Nacional |  5
+4850 |  Partido Popular |  1
+7902 |  Partido Popular |  10
+7909 |  Partido Popular |  5
+2374 |  TV Record |  9
+3400 |  Associação Brasileira de Imprensa |  18
+3196 |  Judiciário |  5
+4004 |  Judiciário |  11
+2599 |  Universidade Federal do Rio de Janeiro |  54
+
+
+Counter com as Entidades e a quantidade de sentenças em que ela aparece: 
+
+Counter({'Câmara': 63, 'Itália': 31, 'Assembleia': 28, 'Câmara Municipal': 12, 'Junta': 12, 'Banco Central': 12, 'Fundação': 11, 'Líbano': 10, 'Caixa': 8, 'Banespa': 6, 'Ceará': 5, 'Conselho de Ministros': 5, 'Sebrae': 5, 'Habitação': 5, 'Supremo': 5, 'Câmara dos Deputados': 4, 'Sindicato': 4, 'Cruzeiro': 4, 'Congresso Nacional': 4, 'Partido Popular': 3, 'Tribunal Regional Eleitoral': 2, 'Partido dos Trabalhadores': 2, 'Instituto Brasileiro de Geografia e Estatística': 2, 'Banco Mundial': 2, 'Associação Comercial': 2, 'Universidade Estadual de Campinas': 2, 'Toyota': 2, 'Força Sindical': 2, 'Eletropaulo': 2, 'Legislativo': 2, 'Conselho de Administração': 2, 'Organização dos Estados Americanos': 2, 'Supremo Tribunal Federal': 2, 'Judiciário': 2, 'Econômico': 1, 'Organizações Globo': 1, 'Conselho Federal de Medicina': 1, 'Associação dos Engenheiros da Petrobrás': 1, 'Centro Brasileiro de Análise e Planejamento': 1, 'Nossa Senhora do Carmo': 1, 'Sindicato dos Metalúrgicos': 1, 'Bolsa de Valores de São Paulo': 1, 'Confederação Nacional da Indústria': 1, 'Nossa Caixa': 1, 'Superior Tribunal de Justiça': 1, 'Sindicato dos Têxteis': 1, 'Clube Militar': 1, 'Tribunal de Justiça': 1, 'Companhia de Mineração': 1, 'Banco Nacional de Habitação': 1, 'Paranapanema': 1, 'Faculdade de Direito': 1, 'Sindicato dos Eletricitários de São Paulo': 1, 'Caixa Econômica Federal': 1, 'Associação Brasileira da Indústria de Máquinas': 1, 'Banco Português': 1, 'Partido Liberal': 1, 'Supremo Tribunal de Justiça': 1, 'Liceu': 1, 'Bolsa de Valores': 1, 'Telebrás': 1, 'Siemens': 1, 'Ordem dos Advogados do Brasil': 1, 'Banco de Comércio': 1, 'Ericsson': 1, 'Record': 1, 'Universidade Federal de Santa Maria': 1, 'Tribunal Superior Eleitoral': 1, 'Conselho Nacional de Educação': 1, 'Federação Paulista de Futebol': 1, 'Universidade Federal da Paraíba': 1, 'Instituto de Pesquisas': 1, 'Tribunal de Contas': 1, 'TV Record': 1, 'Associação Brasileira de Imprensa': 1, 'Universidade Federal do Rio de Janeiro': 1})
+
